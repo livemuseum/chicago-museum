@@ -1,23 +1,23 @@
 [
   {
     "name": "Robie House",
-    "type": "architecture",
-    "year": 1910,
-    "lat": 41.7899,
-    "lng": -87.5959
+    "lat": 41.7897,
+    "lng": -87.5954,
+    "year": 1909,
+    "type": "architecture"
   },
   {
-    "name": "Old St. Patrick's Church",
-    "type": "church",
-    "year": 1856,
-    "lat": 41.8789,
-    "lng": -87.6475
+    "name": "Holy Name Cathedral",
+    "lat": 41.8965,
+    "lng": -87.6283,
+    "year": 1875,
+    "type": "church"
   },
   {
-    "name": "Glessner House",
-    "type": "house",
-    "year": 1887,
-    "lat": 41.8575,
-    "lng": -87.6209
+    "name": "Charnley House",
+    "lat": 41.9110,
+    "lng": -87.6395,
+    "year": 1892,
+    "type": "house"
   }
 ]
