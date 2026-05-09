@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Chicago GIS Museum v4</title>
+<title>Smart GIS Museum Chicago</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
@@ -16,12 +16,12 @@ body { margin:0; font-family: Arial; }
   left:10px;
   background:white;
   padding:10px;
-  width:280px;
+  width:300px;
   z-index:999;
   border-radius:8px;
 }
 
-input, button {
+button, input {
   width:100%;
   margin-top:6px;
 }
@@ -31,13 +31,13 @@ input, button {
 <body>
 
 <div id="panel">
-  <b>Chicago GIS Museum v4</b>
+  <b>Smart GIS Museum</b>
 
   <button onclick="loadBuildings()">🏛 Buildings</button>
   <button onclick="loadSchools()">🏫 Schools</button>
-  <button onclick="loadCrime()">🚨 Crime (sample)</button>
+  <button onclick="loadCrime()">🚨 Crime</button>
 
-  <input id="search" placeholder="Search...">
+  <input id="search" placeholder="Search objects...">
 </div>
 
 <div id="map"></div>
