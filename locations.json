@@ -1,25 +1,29 @@
 [
   {
-  "name": "Robie House",
-  "lat": 41.7897,
-  "lng": -87.5954,
-  "year": 1909,
-  "type": "architecture",
-  "before": "https://archive.org/old.jpg",
-  "after": "https://yourcdn/new.jpg"
-},
+    "name": "Robie House",
+    "lat": 41.7897,
+    "lng": -87.5954,
+    "year": 1909,
+    "type": "architecture",
+    "before": "",
+    "after": ""
+  },
   {
     "name": "Holy Name Cathedral",
     "lat": 41.8965,
     "lng": -87.6283,
     "year": 1875,
-    "type": "church"
+    "type": "church",
+    "before": "",
+    "after": ""
   },
   {
     "name": "Charnley House",
     "lat": 41.9110,
     "lng": -87.6395,
     "year": 1892,
-    "type": "house"
+    "type": "house",
+    "before": "",
+    "after": ""
   }
 ]
