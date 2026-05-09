@@ -1,8 +1,4 @@
-console.log("MUSEUM ENGINE BOOT");
-
-// ======================
-// STATE
-// ======================
+console.log("MUSEUM PRO ENGINE START");
 
 let map;
 let markers;
@@ -18,12 +14,11 @@ window.addEventListener("load", () => {
 
   initMap();
   loadData();
-  initUI();
 
 });
 
 // ======================
-// MAP
+// MAP INIT
 // ======================
 
 function initMap() {
@@ -52,25 +47,21 @@ function initMap() {
 
 function loadData() {
 
-  const url = "https://livemuseum.github.io/chicago-museum/data/locations.json";
+  console.log("LOADING DATA...");
 
-  console.log("FETCHING:", url);
+  fetch("./data/locations.json")
+    .then(res => {
 
-  fetch(url)
-    .then(r => {
+      console.log("FETCH STATUS:", res.status);
 
-      console.log("HTTP STATUS:", r.status);
+      if (!res.ok) throw new Error("HTTP " + res.status);
 
-      return r.text();
+      return res.json();
 
     })
-    .then(text => {
+    .then(data => {
 
-      console.log("RAW RESPONSE:", text);
-
-      const data = JSON.parse(text);
-
-      console.log("PARSED OK:", data.length);
+      console.log("DATA LOADED:", data);
 
       allData = data;
 
@@ -79,25 +70,30 @@ function loadData() {
     })
     .catch(err => {
 
-      console.error("LOAD FAILED:", err);
+      console.error("LOAD ERROR:", err);
 
     });
 
 }
 
 // ======================
-// RENDER MARKERS
+// RENDER MARKERS (CLEAN)
 // ======================
 
 function renderMarkers() {
 
-  if (!markers) return;
+  console.log("RENDER START");
 
+  console.log("DATA SIZE:", allData.length);
+
+  // 🔴 FULL CLEAN
   markers.clearLayers();
 
   allData.forEach(item => {
 
     if (!item.lat || !item.lng) return;
+
+    console.log("ADDING:", item.name);
 
     const marker = L.marker([item.lat, item.lng]);
 
@@ -114,12 +110,12 @@ function renderMarkers() {
 
   });
 
-  console.log("MARKERS RENDERED:", allData.length);
+  console.log("RENDER DONE");
 
 }
 
 // ======================
-// WIKIPEDIA SIDEBAR
+// WIKIPEDIA SIDEBAR (ROBUST)
 // ======================
 
 async function loadWikipedia(title) {
@@ -132,10 +128,35 @@ async function loadWikipedia(title) {
 
   try {
 
-    const url =
+    // direct API
+    let url =
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
 
-    const res = await fetch(url);
+    let res = await fetch(url);
+
+    // fallback search if not found
+    if (!res.ok) {
+
+      console.log("Fallback search triggered");
+
+      const searchUrl =
+        `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(title)}&limit=1&namespace=0&format=json&origin=*`;
+
+      const searchRes = await fetch(searchUrl);
+      const searchData = await searchRes.json();
+
+      const best = searchData?.[1]?.[0];
+
+      if (!best) {
+        panel.innerHTML = "<p>No Wikipedia match found</p>";
+        return;
+      }
+
+      url =
+        `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(best)}`;
+
+      res = await fetch(url);
+    }
 
     const data = await res.json();
 
@@ -166,10 +187,10 @@ async function loadWikipedia(title) {
 }
 
 // ======================
-// UI (safe hooks)
+// OPTIONAL SAFE UI HOOKS
 // ======================
 
-function initUI() {
+window.addEventListener("load", () => {
 
   const search = document.getElementById("searchBox");
   const year = document.getElementById("yearRange");
@@ -187,7 +208,15 @@ function initUI() {
 
       markers.clearLayers();
 
-      filtered.forEach(renderSingleMarker);
+      filtered.forEach(item => {
+
+        const m = L.marker([item.lat, item.lng]);
+
+        m.bindPopup(item.name);
+
+        markers.addLayer(m);
+
+      });
 
     });
 
@@ -207,26 +236,18 @@ function initUI() {
 
       markers.clearLayers();
 
-      filtered.forEach(renderSingleMarker);
+      filtered.forEach(item => {
+
+        const m = L.marker([item.lat, item.lng]);
+
+        m.bindPopup(item.name);
+
+        markers.addLayer(m);
+
+      });
 
     });
 
   }
 
-}
-
-// ======================
-// SINGLE MARKER HELPER
-// ======================
-
-function renderSingleMarker(item) {
-
-  const marker = L.marker([item.lat, item.lng]);
-
-  marker.on("click", () => loadWikipedia(item.name));
-
-  marker.bindPopup(item.name);
-
-  markers.addLayer(marker);
-
-}
+});
