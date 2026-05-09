@@ -1,40 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Chicago Museum v3</title>
+<meta charset="UTF-8">
+<title>Chicago Museum Pro+</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
 
 <style>
-body { margin:0; font-family:Arial; }
+body { margin:0; font-family: Arial; }
 #map { height:100vh; }
 
-#ui {
+#panel {
   position:absolute;
   top:10px;
   left:10px;
   background:white;
-  padding:10px;
-  z-index:999;
+  padding:12px;
   width:280px;
+  z-index:999;
   border-radius:8px;
 }
+
+input, button { width:100%; margin-top:6px; }
 </style>
 </head>
 
 <body>
 
-<div id="ui">
-  <b>Museum v3</b><br>
+<div id="panel">
+  <b>Chicago Museum PRO+</b>
 
-  <button onclick="loadPortal()">Load Chicago Data</button>
-  <button onclick="loadLOC()">Load Historic Photos</button>
+  <button onclick="loadChicago()">Load Chicago Data</button>
+  <button onclick="loadHistoric()">Load Historic Photos</button>
 
-  <br><br>
-  <input id="search" placeholder="Search...">
+  <input id="search" placeholder="Search buildings...">
+
+  <label>Timeline</label>
+  <input type="range" id="year" min="1800" max="1950" value="1900">
+  <div id="yearLabel">1900</div>
 </div>
 
 <div id="map"></div>
