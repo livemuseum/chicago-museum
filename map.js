@@ -1,4 +1,4 @@
-
+console.log("MAP.JS STARTED");
 console.log("MAP LOADED OK");
 
 const map = L.map('map').setView([41.8781, -87.6298], 11);
