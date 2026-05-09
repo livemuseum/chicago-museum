@@ -1,29 +1,20 @@
 [
   {
-    "name": "Robie House",
-    "lat": 41.7897,
-    "lng": -87.5954,
-    "year": 1909,
-    "type": "architecture",
-    "before": "",
-    "after": ""
+    "name": "Chicago Downtown",
+    "lat": 41.8781,
+    "lng": -87.6298,
+    "year": "1920"
   },
   {
-    "name": "Holy Name Cathedral",
-    "lat": 41.8965,
-    "lng": -87.6283,
-    "year": 1875,
-    "type": "church",
-    "before": "",
-    "after": ""
+    "name": "Navy Pier",
+    "lat": 41.8917,
+    "lng": -87.6078,
+    "year": "1916"
   },
   {
-    "name": "Charnley House",
-    "lat": 41.9110,
-    "lng": -87.6395,
-    "year": 1892,
-    "type": "house",
-    "before": "",
-    "after": ""
+    "name": "Museum Campus",
+    "lat": 41.8663,
+    "lng": -87.6170,
+    "year": "1893"
   }
 ]
