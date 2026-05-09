@@ -1,48 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Chicago Museum Pro+</title>
+<meta charset="utf-8">
+<title>Chicago Museum v3</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
 
 <style>
-body { margin:0; font-family: Arial; }
-#map { height: 100vh; width: 100%; }
+body { margin:0; font-family:Arial; }
+#map { height:100vh; }
 
-#panel {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 999;
-  background: white;
-  padding: 10px;
-  width: 280px;
-  border-radius: 8px;
+#ui {
+  position:absolute;
+  top:10px;
+  left:10px;
+  background:white;
+  padding:10px;
+  z-index:999;
+  width:280px;
+  border-radius:8px;
 }
-
-input, button { width: 100%; margin-top: 5px; }
 </style>
 </head>
 
 <body>
 
-<div id="panel">
-  <b>Chicago Museum Pro+</b>
+<div id="ui">
+  <b>Museum v3</b><br>
 
-  <input id="search" placeholder="Search buildings...">
-
-  <button onclick="setFilter('all')">All</button>
-  <button onclick="setFilter('church')">Churches</button>
-  <button onclick="setFilter('house')">Houses</button>
-  <button onclick="setFilter('architecture')">Architecture</button>
+  <button onclick="loadPortal()">Load Chicago Data</button>
+  <button onclick="loadLOC()">Load Historic Photos</button>
 
   <br><br>
-  <label>Timeline</label>
-  <input type="range" id="year" min="1800" max="1950" value="1900">
-  <div id="yearLabel">1900</div>
+  <input id="search" placeholder="Search...">
 </div>
 
 <div id="map"></div>
