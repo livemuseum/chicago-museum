@@ -36,7 +36,7 @@ function initMap() {
 
 function loadData() {
 
-  fetch("./locations.json")
+  fetch(".data//locations.json")
     .then(r => r.json())
     .then(data => {
 
