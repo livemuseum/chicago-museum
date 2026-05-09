@@ -1,11 +1,13 @@
 [
   {
-    "name": "Robie House",
-    "lat": 41.7897,
-    "lng": -87.5954,
-    "year": 1909,
-    "type": "architecture"
-  },
+  "name": "Robie House",
+  "lat": 41.7897,
+  "lng": -87.5954,
+  "year": 1909,
+  "type": "architecture",
+  "before": "https://archive.org/old.jpg",
+  "after": "https://yourcdn/new.jpg"
+},
   {
     "name": "Holy Name Cathedral",
     "lat": 41.8965,
