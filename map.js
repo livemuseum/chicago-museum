@@ -1,3 +1,4 @@
+document.body.innerHTML = "MAP JS IS RUNNING";
 console.log("MAP.JS STARTED");
 console.log("MAP LOADED OK");
 
