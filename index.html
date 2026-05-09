@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>🏛️ Музей Чикаго</title>
+
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+
+<body>
+
+<div class="layout">
+
+  <div class="sidebar">
+    <h1>🏛️ Музей Чикаго</h1>
+    <p>Интерактивная историческая карта</p>
+
+    <input id="search" placeholder="Поиск..." />
+
+    <select id="filter">
+      <option value="all">Все объекты</option>
+      <option value="church">Церкви</option>
+      <option value="house">Дома</option>
+      <option value="architecture">Архитектура</option>
+    </select>
+
+    <a href="https://example.com" target="_blank">📸 Архив фото</a>
+  </div>
+
+  <div id="map"></div>
+
+</div>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<script src="map.js"></script>
+
+</body>
+</html>
