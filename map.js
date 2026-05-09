@@ -1,6 +1,5 @@
 
-
-// ================= MAP =================
+// ================= MAP INIT =================
 const map = L.map('map').setView([41.8781, -87.6298], 11);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -10,79 +9,115 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 // ================= LAYER =================
 let layer = L.layerGroup().addTo(map);
 
-// ================= HELPERS =================
-function clear() {
+function clearLayer() {
   layer.clearLayers();
 }
 
-// ================= 1. BUILDINGS =================
-function loadBuildings() {
-  clear();
+// ================= SAFE COORDS ENGINE =================
+function getCoords(d) {
+  const lat =
+    d.latitude ||
+    d.lat ||
+    d.location?.latitude ||
+    d.location?.lat;
 
-  fetch("https://data.cityofchicago.org/resource/tt4n-kn4t.json?$limit=2000")
+  const lng =
+    d.longitude ||
+    d.lng ||
+    d.location?.longitude ||
+    d.location?.lng;
+
+  if (lat === undefined || lng === undefined) return null;
+
+  const fLat = parseFloat(lat);
+  const fLng = parseFloat(lng);
+
+  if (isNaN(fLat) || isNaN(fLng)) return null;
+
+  return [fLat, fLng];
+}
+
+// ================= BUILDINGS =================
+function loadBuildings() {
+  clearLayer();
+
+  fetch("https://data.cityofchicago.org/resource/tt4n-kn4t.json?$limit=3000")
     .then(r => r.json())
     .then(data => {
 
+      let count = 0;
+
       data.forEach(d => {
-        const lat = d.location?.latitude;
-        const lng = d.location?.longitude;
+        const coords = getCoords(d);
+        if (!coords) return;
 
-        if (!lat || !lng) return;
-
-        L.marker([lat, lng]).addTo(layer)
+        L.marker(coords).addTo(layer)
           .bindPopup(`
             <b>${d.address || "Unknown"}</b><br>
-            Architect: ${d.architect || ""}<br>
-            Year: ${d.date_built || ""}
+            Architect: ${d.architect || "N/A"}<br>
+            Year: ${d.date_built || "?"}
           `);
+
+        count++;
       });
+
+      console.log("Buildings loaded:", count);
     });
 }
 
-// ================= 2. SCHOOLS =================
+// ================= SCHOOLS =================
 function loadSchools() {
-  clear();
+  clearLayer();
 
-  fetch("https://data.cityofchicago.org/resource/2e6r-mc5g.json?$limit=2000")
+  fetch("https://data.cityofchicago.org/resource/2e6r-mc5g.json?$limit=3000")
     .then(r => r.json())
     .then(data => {
 
+      let count = 0;
+
       data.forEach(d => {
-        if (!d.location) return;
+        const coords = getCoords(d);
+        if (!coords) return;
 
-        const lat = d.location.latitude;
-        const lng = d.location.longitude;
-
-        if (!lat || !lng) return;
-
-        L.marker([lat, lng]).addTo(layer)
+        L.marker(coords).addTo(layer)
           .bindPopup(`
-            <b>${d.school_name}</b><br>
+            <b>${d.school_name || "School"}</b><br>
             Type: ${d.school_type || ""}
           `);
+
+        count++;
       });
+
+      console.log("Schools loaded:", count);
     });
 }
 
-// ================= 3. CRIME SAMPLE =================
+// ================= CRIME =================
 function loadCrime() {
-  clear();
+  clearLayer();
 
-  fetch("https://data.cityofchicago.org/resource/ijzp-q8t2.json?$limit=1000")
+  fetch("https://data.cityofchicago.org/resource/ijzp-q8t2.json?$limit=2000")
     .then(r => r.json())
     .then(data => {
 
-      data.forEach(d => {
-        if (!d.latitude || !d.longitude) return;
+      let count = 0;
 
-        L.circleMarker([d.latitude, d.longitude], {
+      data.forEach(d => {
+        const coords = getCoords(d);
+        if (!coords) return;
+
+        L.circleMarker(coords, {
           radius: 4
         }).addTo(layer)
           .bindPopup(`
             <b>${d.primary_type}</b><br>
-            ${d.description}
+            ${d.description || ""}
           `);
+
+        count++;
       });
+
+      console.log("Crime points loaded:", count);
     });
 }
 
