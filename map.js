@@ -1,30 +1,23 @@
-mapboxgl.accessToken = "pk.eyJ1IjoiZ2VuYW94YW5hOCIsImEiOiJjbW95M2tvYW8wNm81MnNvcG80cjh4Mmh6In0.em6KIlaTIceoYthHG5Ar6A";
+// создаём карту (Chicago)
+const map = L.map('map').setView([41.8781, -87.6298], 11);
 
-const map = new mapboxgl.Map({
-  container: "map",
-  style: "mapbox://styles/mapbox/streets-v12",
-  center: [-87.6298, 41.8781],
-  zoom: 11
-});
+// OpenStreetMap слой (БЕЗ токенов)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
 
-let locations = [];
-
+// данные (можешь расширять до 1000 объектов)
 fetch("locations.json")
-  .then(r => r.json())
+  .then(res => res.json())
   .then(data => {
-    locations = data;
-    render(locations);
-  });
-
-function render(data) {
-  data.forEach(loc => {
-    new mapboxgl.Marker()
-      .setLngLat([loc.lng, loc.lat])
-      .setPopup(
-        new mapboxgl.Popup().setHTML(
-          `<b>${loc.name}</b><br>${loc.year}`
-        )
-      )
-      .addTo(map);
-  });
-}
+    data.forEach(loc => {
+      L.marker([loc.lat, loc.lng])
+        .addTo(map)
+        .bindPopup(`
+          <b>${loc.name}</b><br>
+          ${loc.year || ""}<br>
+          ${loc.type || ""}
+        `);
+    });
+  })
+  .catch(err => console.error("Error loading data:", err));
