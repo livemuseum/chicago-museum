@@ -2,11 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Chicago Museum Pro+</title>
+<title>Chicago GIS Museum v4</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
 
 <style>
 body { margin:0; font-family: Arial; }
@@ -17,36 +15,34 @@ body { margin:0; font-family: Arial; }
   top:10px;
   left:10px;
   background:white;
-  padding:12px;
+  padding:10px;
   width:280px;
   z-index:999;
   border-radius:8px;
 }
 
-input, button { width:100%; margin-top:6px; }
+input, button {
+  width:100%;
+  margin-top:6px;
+}
 </style>
 </head>
 
 <body>
 
 <div id="panel">
-  <b>Chicago Museum PRO+</b>
+  <b>Chicago GIS Museum v4</b>
 
-  <button onclick="loadChicago()">Load Chicago Data</button>
-  <button onclick="loadHistoric()">Load Historic Photos</button>
+  <button onclick="loadBuildings()">🏛 Buildings</button>
+  <button onclick="loadSchools()">🏫 Schools</button>
+  <button onclick="loadCrime()">🚨 Crime (sample)</button>
 
-  <input id="search" placeholder="Search buildings...">
-
-  <label>Timeline</label>
-  <input type="range" id="year" min="1800" max="1950" value="1900">
-  <div id="yearLabel">1900</div>
+  <input id="search" placeholder="Search...">
 </div>
 
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-
 <script src="map.js"></script>
 
 </body>
