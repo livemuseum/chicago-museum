@@ -2,16 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Chicago Museum Pro</title>
+<title>Chicago Museum Pro+</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
 
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 <style>
 body { margin:0; font-family: Arial; }
-#map { height: 100vh; }
+#map { height: 100vh; width: 100%; }
 
 #panel {
   position: absolute;
@@ -20,38 +19,37 @@ body { margin:0; font-family: Arial; }
   z-index: 999;
   background: white;
   padding: 10px;
+  width: 280px;
   border-radius: 8px;
-  width: 260px;
 }
 
-button { margin: 2px; }
-input { width: 100%; margin-top: 5px; }
+input, button { width: 100%; margin-top: 5px; }
 </style>
 </head>
 
 <body>
 
 <div id="panel">
-  <b>Chicago Museum</b><br>
+  <b>Chicago Museum Pro+</b>
 
-  <input id="search" placeholder="Search..."/>
+  <input id="search" placeholder="Search buildings...">
 
-  <div>
-    <button onclick="filterType('all')">All</button>
-    <button onclick="filterType('church')">Churches</button>
-    <button onclick="filterType('house')">Houses</button>
-    <button onclick="filterType('architecture')">Architecture</button>
-  </div>
+  <button onclick="setFilter('all')">All</button>
+  <button onclick="setFilter('church')">Churches</button>
+  <button onclick="setFilter('house')">Houses</button>
+  <button onclick="setFilter('architecture')">Architecture</button>
 
-  <div>
-    <input type="range" min="1800" max="1950" value="1900" id="yearRange">
-    <div id="yearLabel">Year: 1900</div>
-  </div>
+  <br><br>
+  <label>Timeline</label>
+  <input type="range" id="year" min="1800" max="1950" value="1900">
+  <div id="yearLabel">1900</div>
 </div>
 
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
 <script src="map.js"></script>
 
 </body>
