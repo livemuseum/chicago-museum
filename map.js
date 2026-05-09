@@ -52,15 +52,25 @@ function initMap() {
 
 function loadData() {
 
-  fetch("./data/locations.json")
-    .then(res => {
-      console.log("FETCH STATUS:", res.status);
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return res.json();
-    })
-    .then(data => {
+  const url = "https://livemuseum.github.io/chicago-museum/data/locations.json";
 
-      console.log("DATA LOADED:", data.length);
+  console.log("FETCHING:", url);
+
+  fetch(url)
+    .then(r => {
+
+      console.log("HTTP STATUS:", r.status);
+
+      return r.text();
+
+    })
+    .then(text => {
+
+      console.log("RAW RESPONSE:", text);
+
+      const data = JSON.parse(text);
+
+      console.log("PARSED OK:", data.length);
 
       allData = data;
 
@@ -69,7 +79,7 @@ function loadData() {
     })
     .catch(err => {
 
-      console.error("LOAD ERROR:", err);
+      console.error("LOAD FAILED:", err);
 
     });
 
