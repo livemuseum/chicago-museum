@@ -1,4 +1,4 @@
-console.log("MUSEUM PRO - WIKIPEDIA ENGINE");
+console.log("ENGINE START");
 
 let map;
 let markers;
@@ -6,116 +6,77 @@ let allData = [];
 
 window.onload = () => {
 
-  initMap();
-  loadData();
+  console.log("WINDOW READY");
 
-};
-
-// ======================
-// MAP
-// ======================
-
-function initMap() {
-
+  // MAP INIT
   map = L.map("map").setView([41.8781, -87.6298], 11);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors"
+    attribution: "&copy; OpenStreetMap"
   }).addTo(map);
 
+  // IMPORTANT: marker group MUST be created
   markers = L.markerClusterGroup();
   map.addLayer(markers);
 
   console.log("MAP READY");
 
-}
+  // TEST MARKER (важно для проверки)
+  L.marker([41.8781, -87.6298])
+    .addTo(map)
+    .bindPopup("TEST OK");
 
-// ======================
-// DATA
-// ======================
+  // LOAD DATA
+  fetch("./data/locations.json")
+    .then(r => {
 
-function loadData() {
+      console.log("FETCH STATUS:", r.status);
 
-  fetch(".data//locations.json")
-    .then(r => r.json())
+      return r.json();
+
+    })
     .then(data => {
+
+      console.log("DATA LOADED:", data);
 
       allData = data;
 
       render();
 
     })
-    .catch(err => console.error(err));
+    .catch(err => {
 
-}
+      console.error("FETCH ERROR:", err);
 
-// ======================
-// RENDER
-// ======================
+    });
+
+};
 
 function render() {
+
+  console.log("RENDER START");
+
+  console.log("DATA SIZE:", allData.length);
 
   markers.clearLayers();
 
   allData.forEach(obj => {
 
+    console.log("ADDING:", obj.name);
+
+    if (!obj.lat || !obj.lng) return;
+
     const marker = L.marker([obj.lat, obj.lng]);
 
-    marker.on("click", () => {
-
-      loadWikipedia(obj.name);
-
-    });
+    marker.bindPopup(`
+      <b>${obj.name}</b><br>
+      ${obj.year || ""}
+    `);
 
     markers.addLayer(marker);
 
   });
 
-}
-
-// ======================
-// WIKIPEDIA API
-// ======================
-
-async function loadWikipedia(title) {
-
-  const sidebar = document.getElementById("details");
-
-  sidebar.innerHTML = "<p>Loading Wikipedia...</p>";
-
-  const url =
-    `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
-
-  try {
-
-    const res = await fetch(url);
-
-    const data = await res.json();
-
-    console.log("WIKI DATA:", data);
-
-    sidebar.innerHTML = `
-      <h2>${data.title || title}</h2>
-
-      ${
-        data.thumbnail
-          ? `<img src="${data.thumbnail.source}" style="width:100%; border-radius:8px;">`
-          : ""
-      }
-
-      <p>${data.extract || "No description available."}</p>
-
-      <a href="${data.content_urls?.desktop?.page}" target="_blank">
-        Open Wikipedia →
-      </a>
-    `;
-
-  } catch (err) {
-
-    sidebar.innerHTML = "<p>Wikipedia load failed</p>";
-
-    console.error(err);
-
-  }
+  console.log("RENDER DONE");
 
 }
