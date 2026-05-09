@@ -1,79 +1,93 @@
 const map = L.map('map').setView([41.8781, -87.6298], 11);
 
-// base map
-const modern = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap'
+// base layer
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'&copy; OpenStreetMap'
 }).addTo(map);
 
-// optional historical layer
-const historical = L.tileLayer('https://tiles.wmflabs.org/historic/{z}/{x}/{y}.png');
-
-L.control.layers({
-  "Modern": modern,
-  "Historical": historical
-}).addTo(map);
-
-// cluster group
+// cluster
 const cluster = L.markerClusterGroup();
+map.addLayer(cluster);
+
 let dataGlobal = [];
-let currentFilter = "all";
 
-// load data
-fetch("locations.json")
-  .then(r => r.json())
-  .then(data => {
-    dataGlobal = data;
-    render(data);
-  });
+/* =========================
+   1. CHICAGO DATA PORTAL
+========================= */
+function loadPortal() {
+  fetch("https://data.cityofchicago.org/resource/tt4n-kn4t.json?$limit=2000")
+    .then(r => r.json())
+    .then(data => {
+      dataGlobal = data;
 
-function render(data) {
+      cluster.clearLayers();
+
+      data.forEach(item => {
+        if (!item.location) return;
+
+        const lat = parseFloat(item.location.latitude);
+        const lng = parseFloat(item.location.longitude);
+
+        if (!lat || !lng) return;
+
+        const marker = L.marker([lat, lng]);
+
+        marker.bindPopup(`
+          <b>${item.address || "Unknown"}</b><br>
+          Architect: ${item.architect || ""}<br>
+          Year: ${item.date_built || ""}
+        `);
+
+        cluster.addLayer(marker);
+      });
+    });
+}
+
+/* =========================
+   2. LIBRARY OF CONGRESS
+   (historic photos)
+========================= */
+function loadLOC() {
+  fetch("https://www.loc.gov/photos/?fo=json&c=50")
+    .then(r => r.json())
+    .then(data => {
+      const results = data.results || [];
+
+      results.forEach(p => {
+        if (!p.latitude || !p.longitude) return;
+
+        const marker = L.marker([p.latitude, p.longitude]);
+
+        marker.bindPopup(`
+          <b>${p.title || "Historic Photo"}</b><br>
+          <img src="${p.image_url || ""}" width="150">
+        `);
+
+        cluster.addLayer(marker);
+      });
+    });
+}
+
+/* =========================
+   SEARCH
+========================= */
+document.getElementById("search").addEventListener("input", e => {
+  const q = e.target.value.toLowerCase();
+
   cluster.clearLayers();
 
-  data.forEach(loc => {
-    const marker = L.marker([loc.lat, loc.lng]);
+  dataGlobal.forEach(item => {
+    const name = (item.address || "").toLowerCase();
 
-    marker.bindPopup(`
-      <b>${loc.name}</b><br>
-      Year: ${loc.year || "?"}<br>
-      Type: ${loc.type || ""}<br><br>
+    if (name.includes(q)) {
+      if (!item.location) return;
 
-      ${loc.before ? `<img src="${loc.before}" width="120"><br>Before<br>` : ""}
-      ${loc.after ? `<img src="${loc.after}" width="120"><br>After` : ""}
-    `);
+      const marker = L.marker([
+        item.location.latitude,
+        item.location.longitude
+      ]);
 
-    cluster.addLayer(marker);
+      cluster.addLayer(marker);
+    }
   });
-
-  map.addLayer(cluster);
-}
-
-// filter system
-window.setFilter = function(type) {
-  currentFilter = type;
-  applyFilters();
-};
-
-// search
-document.getElementById("search").addEventListener("input", e => {
-  applyFilters(e.target.value.toLowerCase());
 });
-
-// timeline
-document.getElementById("year").addEventListener("input", e => {
-  document.getElementById("yearLabel").innerText = e.target.value;
-  applyFilters();
-});
-
-function applyFilters(search = "") {
-  const yearLimit = +document.getElementById("year").value;
-
-  let filtered = dataGlobal.filter(loc => {
-    const matchType = currentFilter === "all" || loc.type === currentFilter;
-    const matchYear = !loc.year || loc.year <= yearLimit;
-    const matchSearch = loc.name.toLowerCase().includes(search);
-
-    return matchType && matchYear && matchSearch;
-  });
-
-  render(filtered);
-}
