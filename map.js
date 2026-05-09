@@ -1,156 +1,121 @@
-console.log("MUSEUM PRO START");
+console.log("MUSEUM PRO - WIKIPEDIA ENGINE");
 
 let map;
 let markers;
-
 let allData = [];
-
-let currentYear = 2025;
-let currentSearch = "";
 
 window.onload = () => {
 
   initMap();
-  initUI();
   loadData();
 
 };
+
+// ======================
+// MAP
+// ======================
 
 function initMap() {
 
   map = L.map("map").setView([41.8781, -87.6298], 11);
 
-  L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-      attribution: "&copy; OpenStreetMap contributors"
-    }
-  ).addTo(map);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map);
 
   markers = L.markerClusterGroup();
-
   map.addLayer(markers);
 
   console.log("MAP READY");
+
 }
+
+// ======================
+// DATA
+// ======================
 
 function loadData() {
 
   fetch("./locations.json")
-    .then(r => {
-
-      console.log("FETCH STATUS:", r.status);
-
-      return r.json();
-
-    })
+    .then(r => r.json())
     .then(data => {
-
-      console.log("DATA LOADED:", data.length);
 
       allData = data;
 
       render();
 
     })
-    .catch(err => {
-
-      console.error("DATA ERROR:", err);
-
-    });
+    .catch(err => console.error(err));
 
 }
+
+// ======================
+// RENDER
+// ======================
 
 function render() {
 
   markers.clearLayers();
 
-  const sidebar = document.getElementById("sidebar");
-
-  sidebar.innerHTML = "";
-
-  let visibleCount = 0;
-
   allData.forEach(obj => {
 
-    // Проверка координат
-    if (!obj.lat || !obj.lng) return;
-
-    // Timeline filter
-    if (obj.year && Number(obj.year) > currentYear) return;
-
-    // Search filter
-    if (
-      currentSearch &&
-      !obj.name.toLowerCase().includes(currentSearch)
-    ) {
-      return;
-    }
-
-    // Marker
     const marker = L.marker([obj.lat, obj.lng]);
 
-    marker.bindPopup(`
-      <b>${obj.name || "Unknown"}</b><br>
-      Year: ${obj.year || "?"}
-    `);
+    marker.on("click", () => {
+
+      loadWikipedia(obj.name);
+
+    });
 
     markers.addLayer(marker);
 
-    // Sidebar card
-    const card = document.createElement("div");
-
-    card.className = "object-card";
-
-    card.innerHTML = `
-      <b>${obj.name}</b><br>
-      ${obj.year || ""}
-    `;
-
-    card.onclick = () => {
-
-      map.setView([obj.lat, obj.lng], 15);
-
-      marker.openPopup();
-
-    };
-
-    sidebar.appendChild(card);
-
-    visibleCount++;
-
   });
-
-  console.log("VISIBLE OBJECTS:", visibleCount);
 
 }
 
-function initUI() {
+// ======================
+// WIKIPEDIA API
+// ======================
 
-  // Timeline
-  const slider = document.getElementById("yearRange");
+async function loadWikipedia(title) {
 
-  const yearLabel = document.getElementById("yearLabel");
+  const sidebar = document.getElementById("details");
 
-  slider.addEventListener("input", (e) => {
+  sidebar.innerHTML = "<p>Loading Wikipedia...</p>";
 
-    currentYear = Number(e.target.value);
+  const url =
+    `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
 
-    yearLabel.innerText = currentYear;
+  try {
 
-    render();
+    const res = await fetch(url);
 
-  });
+    const data = await res.json();
 
-  // Search
-  const searchBox = document.getElementById("searchBox");
+    console.log("WIKI DATA:", data);
 
-  searchBox.addEventListener("input", (e) => {
+    sidebar.innerHTML = `
+      <h2>${data.title || title}</h2>
 
-    currentSearch = e.target.value.toLowerCase();
+      ${
+        data.thumbnail
+          ? `<img src="${data.thumbnail.source}" style="width:100%; border-radius:8px;">`
+          : ""
+      }
 
-    render();
+      <p>${data.extract || "No description available."}</p>
 
-  });
+      <a href="${data.content_urls?.desktop?.page}" target="_blank">
+        Open Wikipedia →
+      </a>
+    `;
+
+  } catch (err) {
+
+    sidebar.innerHTML = "<p>Wikipedia load failed</p>";
+
+    console.error(err);
+
+  }
 
 }
