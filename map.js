@@ -1,13 +1,17 @@
-alert("NEW FILE LOADED");
-
-console.log("ABSOLUTE TEST START");
+console.log("🟣 MUSEUM PRO FINAL");
 
 Cesium.Ion.defaultAccessToken = "PASTE_TOKEN_HERE";
 
+let viewer;
+let allData = [];
+
+// ======================
+// START
+// ======================
+
 window.onload = async function () {
 
-  // CREATE VIEWER
-  const viewer = new Cesium.Viewer("cesiumContainer", {
+  viewer = new Cesium.Viewer("cesiumContainer", {
 
     animation: false,
     timeline: false,
@@ -16,49 +20,139 @@ window.onload = async function () {
 
   });
 
-  console.log("VIEWER OK");
+  console.log("🗺 VIEWER READY");
 
-  // DISABLE DEPTH TEST
   viewer.scene.globe.depthTestAgainstTerrain = false;
 
-  // HUGE ENTITY
-  viewer.entities.add({
+  loadData();
 
-    name: "GIANT TEST",
+};
+
+// ======================
+// LOAD JSON
+// ======================
+
+async function loadData() {
+
+  try {
+
+    const response = await fetch(
+      "./data/locations.json?v=" + Date.now()
+    );
+
+    allData = await response.json();
+
+    console.log("📦 DATA:", allData.length);
+
+    render();
+
+  } catch (e) {
+
+    console.error("DATA ERROR:", e);
+
+  }
+
+}
+
+// ======================
+// RENDER
+// ======================
+
+function render() {
+
+  allData.forEach(addObject);
+
+  viewer.zoomTo(viewer.entities);
+
+}
+
+// ======================
+// ADD OBJECT
+// ======================
+
+function addObject(o) {
+
+  if (!o.lat || !o.lng) return;
+
+  const entity = viewer.entities.add({
+
+    name: o.name,
 
     position: Cesium.Cartesian3.fromDegrees(
-      -87.6298,
-      41.8781,
-      1000
+      Number(o.lng),
+      Number(o.lat),
+      0
     ),
 
-    ellipsoid: {
+    // BIG VISIBLE ICON
+    billboard: {
 
-      radii: new Cesium.Cartesian3(
-        3000,
-        3000,
-        3000
-      ),
+      image:
+        "https://upload.wikimedia.org/wikipedia/commons/e/ec/RedDot.svg",
 
-      material: Cesium.Color.RED.withAlpha(0.9)
+      width: 32,
+      height: 32,
+
+      verticalOrigin: Cesium.VerticalOrigin.BOTTOM
+
+    },
+
+    label: {
+
+      text: o.name,
+
+      font: "16px sans-serif",
+
+      showBackground: true,
+
+      scale: 0.6,
+
+      pixelOffset: new Cesium.Cartesian2(0, -40)
 
     }
 
   });
 
-  console.log("ENTITY ADDED");
+  // INFO PANEL
+  entity.description = buildDescription(o);
 
-  // FORCE CAMERA VERY CLOSE
-  viewer.camera.setView({
+  console.log("✅ ADDED:", o.name);
 
-    destination: Cesium.Cartesian3.fromDegrees(
-      -87.6298,
-      41.8781,
-      15000
-    )
+}
 
-  });
+// ======================
+// AI DESCRIPTION
+// ======================
 
-  console.log("CAMERA SET");
+function buildDescription(o) {
 
-};
+  return `
+    <div style="font-family:Arial;max-width:400px;">
+
+      <h2>${o.name}</h2>
+
+      <p>
+        <b>Type:</b> ${o.type || "historic"}
+      </p>
+
+      <p>
+        <b>Year:</b> ${o.year || "unknown"}
+      </p>
+
+      <hr/>
+
+      <p>
+        This site is part of Chicago's
+        architectural and cultural evolution.
+      </p>
+
+      <p style="color:gray;">
+        AI Insight:
+        This location contributes to the
+        historical identity of the city.
+      </p>
+
+    </div>
+  `;
+
+}
