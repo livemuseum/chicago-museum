@@ -1,76 +1,155 @@
 console.log("🟣 MUSEUM PRO 3D AI START");
 
 // ======================
-// CESIUM INIT
+// CHECK CESIUM
 // ======================
 
-const viewer = new Cesium.Viewer("cesiumContainer", {
-  terrainProvider: Cesium.createWorldTerrain(),
-  animation: false,
-  timeline: false
+if (typeof Cesium === "undefined") {
+  console.error("❌ Cesium not loaded. Check CDN script in HTML.");
+}
+
+// ======================
+// START APP
+// ======================
+
+window.addEventListener("load", async () => {
+
+  console.log("WINDOW READY");
+
+  await initCesium();
+  loadData();
+
 });
+
+// ======================
+// CESIUM INIT (FIXED - NO createWorldTerrain)
+// ======================
+
+async function initCesium() {
+
+  try {
+
+    const viewer = new Cesium.Viewer("cesiumContainer", {
+      terrainProvider: await Cesium.Terrain.fromWorldTerrain(),
+      animation: false,
+      timeline: false,
+      shouldAnimate: true
+    });
+
+    window.viewer = viewer; // make global for debug
+
+    console.log("🗺 CESIUM READY");
+
+    // TEST ENTITY (Chicago)
+    viewer.entities.add({
+      name: "Chicago Test",
+      position: Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781),
+      point: {
+        pixelSize: 15,
+        color: Cesium.Color.RED,
+        outlineColor: Cesium.Color.WHITE,
+        outlineWidth: 2
+      }
+    });
+
+  } catch (err) {
+
+    console.error("❌ CESIUM INIT ERROR:", err);
+
+  }
+
+}
 
 // ======================
 // LOAD DATA
 // ======================
 
-fetch("./data/locations.json")
-  .then(r => r.json())
-  .then(data => {
+function loadData() {
 
-    console.log("DATA LOADED:", data.length);
+  fetch("./data/locations.json?v=" + Date.now())
+    .then(r => r.json())
+    .then(data => {
 
-    data.forEach(addEntity);
+      console.log("📦 DATA LOADED:", data.length);
 
-  });
+      data.forEach(addEntity);
+
+    })
+    .catch(err => console.error("DATA ERROR:", err));
+
+}
 
 // ======================
-// ADD 3D ENTITIES
+// ADD ENTITIES
 // ======================
 
 function addEntity(o) {
+
+  if (!window.viewer) {
+    console.warn("Viewer not ready yet");
+    return;
+  }
 
   const entity = viewer.entities.add({
 
     name: o.name,
 
-    position: Cesium.Cartesian3.fromDegrees(o.lng, o.lat, 0),
+    position: Cesium.Cartesian3.fromDegrees(o.lng, o.lat),
 
     point: {
-      pixelSize: 10,
-      color: Cesium.Color.ORANGE,
+      pixelSize: 12,
+      color: getColor(o.type),
       outlineColor: Cesium.Color.WHITE,
       outlineWidth: 2
     }
 
   });
 
-  entity.description = generateAI(o);
+  entity.description = buildAI(o);
 
 }
 
 // ======================
-// AI ENGINE (WHY IT MATTERS)
+// COLOR SYSTEM
 // ======================
 
-function generateAI(o) {
+function getColor(type) {
+
+  const map = {
+    church: Cesium.Color.CRIMSON,
+    skyscraper: Cesium.Color.DODGERBLUE,
+    historic: Cesium.Color.ORANGE,
+    district: Cesium.Color.GREEN
+  };
+
+  return map[type] || Cesium.Color.GRAY;
+
+}
+
+// ======================
+// 🧠 AI MUSEUM DESCRIPTION
+// ======================
+
+function buildAI(o) {
 
   return `
-    <h3>${o.name}</h3>
+    <h2>${o.name}</h2>
 
     <p><b>Type:</b> ${o.type || "unknown"}</p>
     <p><b>Year:</b> ${o.year || "unknown"}</p>
 
-    <hr>
+    <hr/>
 
     <p>
-      This location represents a key element in the urban evolution of Chicago.
-      It reflects architectural, cultural and historical development patterns.
+      This location is part of Chicago’s historical urban fabric.
+      It represents architectural and cultural development patterns
+      across different eras of the city.
     </p>
 
     <p style="color:gray;">
-      AI Museum Insight: This structure contributes to the spatial narrative
-      of the city’s historical expansion.
+      AI Insight: This structure contributes to spatial evolution
+      and historical identity of the city landscape.
     </p>
   `;
+
 }
