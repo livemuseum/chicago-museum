@@ -1,6 +1,4 @@
-console.log("MAP JS VERSION = 999");
-
-console.log("MUSEUM PRO ENGINE START");
+console.log("MUSEUM PRO SMART ENGINE START");
 
 let map;
 let markers;
@@ -12,15 +10,13 @@ let allData = [];
 
 window.addEventListener("load", () => {
 
-  console.log("WINDOW READY");
-
   initMap();
   loadData();
 
 });
 
 // ======================
-// MAP INIT
+// MAP
 // ======================
 
 function initMap() {
@@ -28,7 +24,7 @@ function initMap() {
   map = L.map("map").setView([41.8781, -87.6298], 11);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors"
+    attribution: "&copy; OpenStreetMap"
   }).addTo(map);
 
   markers = L.markerClusterGroup();
@@ -36,7 +32,7 @@ function initMap() {
 
   console.log("MAP READY");
 
-  }
+}
 
 // ======================
 // LOAD DATA
@@ -44,55 +40,65 @@ function initMap() {
 
 function loadData() {
 
-  console.log("LOADING DATA...");
-
-  fetch("./data/locations.json?v=999")
-    .then(res => {
-
-      console.log("FETCH STATUS:", res.status);
-
-      if (!res.ok) throw new Error("HTTP " + res.status);
-
-      return res.json();
-
-    })
+  fetch("./data/locations.json")
+    .then(r => r.json())
     .then(data => {
 
-      console.log("DATA LOADED:", data);
-
       allData = data;
+
+      console.log("DATA LOADED:", allData.length);
 
       renderMarkers();
 
     })
-    .catch(err => {
-
-      console.error("LOAD ERROR:", err);
-
-    });
+    .catch(err => console.error(err));
 
 }
 
 // ======================
-// RENDER MARKERS (CLEAN)
+// ICON ENGINE
+// ======================
+
+function getIcon(type) {
+
+  const colors = {
+    church: "#b30000",
+    skyscraper: "#1f77b4",
+    district: "#2ca02c",
+    historic: "#ff7f0e"
+  };
+
+  return L.divIcon({
+    className: "custom-icon",
+    html: `<div style="
+      background:${colors[type] || "#666"};
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      border:2px solid white;
+      box-shadow:0 0 4px rgba(0,0,0,0.4);
+    "></div>`,
+    iconSize: [12, 12]
+  });
+
+}
+
+// ======================
+// RENDER
 // ======================
 
 function renderMarkers() {
 
-  console.log("RENDER START");
-
-  console.log("DATA SIZE:", allData.length);
-
-  // 🔴 FULL CLEAN
   markers.clearLayers();
 
   allData.forEach(item => {
 
     if (!item.lat || !item.lng) return;
 
-    console.log("ADDING:", item.name);
-
-    const marker = L.marker([item.lat, item.lng]);
+    const marker = L.marker(
+      [item.lat, item.lng],
+      { icon: getIcon(item.type) }
+    );
 
     marker.on("click", () => {
       loadWikipedia(item.name);
@@ -100,6 +106,7 @@ function renderMarkers() {
 
     marker.bindPopup(`
       <b>${item.name}</b><br>
+      ${item.type || ""}<br>
       ${item.year || ""}
     `);
 
@@ -107,45 +114,39 @@ function renderMarkers() {
 
   });
 
-  console.log("RENDER DONE");
+  console.log("SMART CLUSTER READY:", allData.length);
 
 }
 
 // ======================
-// WIKIPEDIA SIDEBAR (ROBUST)
+// WIKIPEDIA ENGINE
 // ======================
 
 async function loadWikipedia(title) {
 
   const panel = document.getElementById("details");
 
-  if (!panel) return;
-
-  panel.innerHTML = "<p>Loading Wikipedia...</p>";
+  panel.innerHTML = "<p>Loading...</p>";
 
   try {
 
-    // direct API
     let url =
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
 
     let res = await fetch(url);
 
-    // fallback search if not found
     if (!res.ok) {
 
-      console.log("Fallback search triggered");
+      const search =
+        `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(title)}&limit=1&format=json&origin=*`;
 
-      const searchUrl =
-        `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(title)}&limit=1&namespace=0&format=json&origin=*`;
+      const sres = await fetch(search);
+      const sdata = await sres.json();
 
-      const searchRes = await fetch(searchUrl);
-      const searchData = await searchRes.json();
-
-      const best = searchData?.[1]?.[0];
+      const best = sdata?.[1]?.[0];
 
       if (!best) {
-        panel.innerHTML = "<p>No Wikipedia match found</p>";
+        panel.innerHTML = "<p>No Wikipedia data</p>";
         return;
       }
 
@@ -158,93 +159,16 @@ async function loadWikipedia(title) {
     const data = await res.json();
 
     panel.innerHTML = `
-      <h2>${data.title || title}</h2>
-
-      ${
-        data.thumbnail
-          ? `<img src="${data.thumbnail.source}" style="width:100%; border-radius:8px;">`
-          : ""
-      }
-
-      <p>${data.extract || "No description available."}</p>
-
-      <a href="${data.content_urls?.desktop?.page}" target="_blank">
-        Open Wikipedia →
-      </a>
+      <h3>${data.title}</h3>
+      ${data.thumbnail ? `<img src="${data.thumbnail.source}" style="width:100%; border-radius:8px;">` : ""}
+      <p>${data.extract || ""}</p>
+      <a href="${data.content_urls?.desktop?.page}" target="_blank">Wikipedia →</a>
     `;
 
   } catch (e) {
 
-    console.error(e);
-
-    panel.innerHTML = "<p>Wikipedia load failed</p>";
+    panel.innerHTML = "<p>Error loading Wikipedia</p>";
 
   }
 
 }
-
-// ======================
-// OPTIONAL SAFE UI HOOKS
-// ======================
-
-window.addEventListener("load", () => {
-
-  const search = document.getElementById("searchBox");
-  const year = document.getElementById("yearRange");
-  const label = document.getElementById("yearLabel");
-
-  if (search) {
-
-    search.addEventListener("input", (e) => {
-
-      const q = e.target.value.toLowerCase();
-
-      const filtered = allData.filter(i =>
-        i.name.toLowerCase().includes(q)
-      );
-
-      markers.clearLayers();
-
-      filtered.forEach(item => {
-
-        const m = L.marker([item.lat, item.lng]);
-
-        m.bindPopup(item.name);
-
-        markers.addLayer(m);
-
-      });
-
-    });
-
-  }
-
-  if (year) {
-
-    year.addEventListener("input", (e) => {
-
-      const y = Number(e.target.value);
-
-      if (label) label.innerText = y;
-
-      const filtered = allData.filter(i =>
-        !i.year || i.year <= y
-      );
-
-      markers.clearLayers();
-
-      filtered.forEach(item => {
-
-        const m = L.marker([item.lat, item.lng]);
-
-        m.bindPopup(item.name);
-
-        markers.addLayer(m);
-
-      });
-
-    });
-
-  }
-
-});
