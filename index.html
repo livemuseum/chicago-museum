@@ -1,12 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <title>Museum 3D TEST</title>
 
-  <title>Museum Pro 3D AI</title>
-
-  <!-- CESIUM -->
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 
@@ -18,24 +15,6 @@
       padding: 0;
       overflow: hidden;
     }
-
-    #ui {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      width: 300px;
-      background: white;
-      padding: 12px;
-      border-radius: 10px;
-      z-index: 9999;
-      font-family: Arial;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.3);
-    }
-
-    #details {
-      margin-top: 10px;
-      font-size: 14px;
-    }
   </style>
 </head>
 
@@ -43,12 +22,18 @@
 
 <div id="cesiumContainer"></div>
 
-<div id="ui">
-  <h3>Museum Pro 3D AI</h3>
-  <div id="details">Click a building</div>
-</div>
+<script>
+console.log("CESIUM TEST START");
 
-<script src="map.js"></script>
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+viewer.entities.add({
+  position: Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781),
+  point: { pixelSize: 20, color: Cesium.Color.RED }
+});
+
+console.log("CESIUM READY");
+</script>
 
 </body>
 </html>
