@@ -1,20 +1,26 @@
-console.log("MUSEUM PRO AI ENGINE START");
+console.log("MUSEUM PRO v4 START");
 
 let map;
 let markers;
 let allData = [];
+
+let activeYear = 2025;
+let activeType = "all";
 
 // ======================
 // INIT
 // ======================
 
 window.addEventListener("load", () => {
+
   initMap();
   loadData();
+  bindUI();
+
 });
 
 // ======================
-// MAP INIT
+// MAP
 // ======================
 
 function initMap() {
@@ -33,7 +39,7 @@ function initMap() {
 }
 
 // ======================
-// LOAD DATA (CACHE FIX)
+// DATA
 // ======================
 
 function loadData() {
@@ -44,17 +50,53 @@ function loadData() {
 
       allData = data;
 
-      console.log("DATA LOADED:", allData.length);
+      console.log("DATA:", allData.length);
 
-      renderMarkers();
+      render();
 
-    })
-    .catch(err => console.error("LOAD ERROR:", err));
+    });
 
 }
 
 // ======================
-// ICON SYSTEM
+// UI BINDING
+// ======================
+
+function bindUI() {
+
+  const slider = document.getElementById("yearRange");
+
+  if (slider) {
+
+    slider.addEventListener("input", (e) => {
+
+      activeYear = +e.target.value;
+
+      document.getElementById("yearLabel").innerText = activeYear;
+
+      render();
+
+    });
+
+  }
+
+  // optional filter buttons (if exist)
+  document.querySelectorAll("[data-type]").forEach(btn => {
+
+    btn.addEventListener("click", () => {
+
+      activeType = btn.getAttribute("data-type");
+
+      render();
+
+    });
+
+  });
+
+}
+
+// ======================
+// ICONS
 // ======================
 
 function getIcon(type) {
@@ -67,112 +109,145 @@ function getIcon(type) {
   };
 
   return L.divIcon({
-    className: "custom-icon",
+    className: "icon",
     html: `<div style="
+      width:10px;height:10px;
       background:${colors[type] || "#666"};
-      width:12px;
-      height:12px;
       border-radius:50%;
       border:2px solid white;
       box-shadow:0 0 4px rgba(0,0,0,0.4);
     "></div>`,
-    iconSize: [12, 12]
+    iconSize: [10, 10]
   });
 
 }
 
 // ======================
-// RENDER MARKERS
+// RENDER
 // ======================
 
-function renderMarkers() {
+function render() {
 
   markers.clearLayers();
 
-  allData.forEach(item => {
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) sidebar.innerHTML = "";
 
-    if (!item.lat || !item.lng) return;
+  allData
+    .filter(item => {
 
-    const marker = L.marker(
-      [item.lat, item.lng],
-      { icon: getIcon(item.type) }
-    );
+      const yearOk = !item.year || item.year <= activeYear;
+      const typeOk = activeType === "all" || item.type === activeType;
 
-    marker.on("click", () => {
-      loadWikipedia(item.name);
+      return yearOk && typeOk;
+
+    })
+    .forEach(item => {
+
+      const marker = L.marker(
+        [item.lat, item.lng],
+        { icon: getIcon(item.type) }
+      );
+
+      // ======================
+      // CLICK → WIKI + AI
+      // ======================
+      marker.on("click", () => {
+        loadWikipedia(item.name);
+        showWhyItMatters(item);
+      });
+
+      // ======================
+      // HOVER PREVIEW
+      // ======================
+      marker.on("mouseover", () => {
+
+        marker.bindPopup(`
+          <b>${item.name}</b><br>
+          ${item.type || ""}<br>
+          ${item.year || ""}
+        `).openPopup();
+
+      });
+
+      markers.addLayer(marker);
+
+      // ======================
+      // SIDEBAR LIST
+      // ======================
+      if (sidebar) {
+
+        const div = document.createElement("div");
+        div.className = "object-card";
+        div.innerHTML = `
+          <b>${item.name}</b><br>
+          <small>${item.type || ""} | ${item.year || ""}</small>
+        `;
+
+        div.onclick = () => {
+          map.setView([item.lat, item.lng], 15);
+          loadWikipedia(item.name);
+          showWhyItMatters(item);
+        };
+
+        sidebar.appendChild(div);
+
+      }
+
     });
-
-    marker.bindPopup(`
-      <b>${item.name}</b><br>
-      ${item.type || ""}<br>
-      ${item.year || ""}
-    `);
-
-    markers.addLayer(marker);
-
-  });
-
-  console.log("MARKERS READY:", allData.length);
 
 }
 
 // ======================
-// WIKIPEDIA ENGINE (SMART + AI SUMMARY)
+// WIKIPEDIA (SAFE)
 // ======================
 
 async function loadWikipedia(title) {
 
   const panel = document.getElementById("details");
-
-  panel.innerHTML = "<p>Loading museum data...</p>";
+  panel.innerHTML = "<p>Loading Wikipedia...</p>";
 
   try {
 
-    // 1. direct attempt
     let url =
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
 
     let res = await fetch(url);
 
-    if (res.ok) {
+    if (!res.ok) {
 
-      const data = await res.json();
-      renderWiki(data);
-      return;
+      const search =
+        `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(title)}&limit=1&format=json&origin=*`;
+
+      const sres = await fetch(search);
+      const sdata = await sres.json();
+
+      const best = sdata?.[1]?.[0];
+
+      if (!best) {
+        panel.innerHTML = "<p>No Wikipedia data</p>";
+        return;
+      }
+
+      res = await fetch(
+        `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(best)}`
+      );
 
     }
 
-    // 2. fallback search
-    const searchUrl =
-      `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(title)}&limit=1&format=json&origin=*`;
+    const data = await res.json();
 
-    const sres = await fetch(searchUrl);
-    const sdata = await sres.json();
+    const summary = makeAISummary(data.extract);
 
-    const best = sdata?.[1]?.[0];
+    panel.innerHTML = `
+      <h3>${data.title}</h3>
+      ${data.thumbnail ? `<img src="${data.thumbnail.source}" style="width:100%;border-radius:8px;">` : ""}
+      <p>${summary}</p>
+      <a href="${data.content_urls?.desktop?.page}" target="_blank">Wikipedia →</a>
+    `;
 
-    if (!best) {
-      panel.innerHTML = "<p>No Wikipedia match found</p>";
-      return;
-    }
+  } catch (e) {
 
-    // 3. final fetch
-    const finalUrl =
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(best)}`;
-
-    const finalRes = await fetch(finalUrl);
-
-    if (!finalRes.ok) {
-      panel.innerHTML = "<p>No Wikipedia data</p>";
-      return;
-    }
-
-    const data = await finalRes.json();
-    renderWiki(data);
-
-  } catch (err) {
-
-    console.error(err);
     panel.innerHTML = "<p>Wikipedia error</p>";
 
   }
@@ -180,47 +255,36 @@ async function loadWikipedia(title) {
 }
 
 // ======================
-// 🧠 AI SUMMARY ENGINE (MUSEUM STYLE)
+// 🧠 AI SUMMARY
 // ======================
 
 function makeAISummary(text) {
 
   if (!text) return "No description available.";
 
-  const sentences = text.split(". ").filter(Boolean);
+  const sentences = text.split(". ");
 
-  if (sentences.length <= 2) return text;
-
-  // museum-style: short + clean + curated
   return sentences.slice(0, 2).join(". ") + ".";
 
 }
 
 // ======================
-// RENDER WIKI PANEL
+// 🧠 WHY IT MATTERS (AI LAYER)
 // ======================
 
-function renderWiki(data) {
+function showWhyItMatters(item) {
 
   const panel = document.getElementById("details");
 
-  const summary = makeAISummary(data.extract);
-
-  panel.innerHTML = `
-    <h3>${data.title || ""}</h3>
-
-    ${data.thumbnail ?
-      `<img src="${data.thumbnail.source}"
-        style="width:100%; border-radius:8px; margin-bottom:8px;">`
-      : ""
-    }
-
-    <p style="font-size:14px; line-height:1.4;">
-      ${summary}
+  const text = `
+    <hr>
+    <h4>Why it matters</h4>
+    <p>
+      ${item.name} represents a key part of Chicago’s ${item.type || "urban"} development.
+      It reflects historical growth patterns and architectural evolution of the city.
     </p>
-
-    <a href="${data.content_urls?.desktop?.page}" target="_blank">
-      Open full Wikipedia →
-    </a>
   `;
+
+  panel.innerHTML += text;
+
 }
