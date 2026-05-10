@@ -1,3 +1,5 @@
+alert("NEW FILE LOADED");
+
 console.log("ABSOLUTE TEST START");
 
 Cesium.Ion.defaultAccessToken = "PASTE_TOKEN_HERE";
