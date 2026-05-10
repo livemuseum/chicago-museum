@@ -1,22 +1,40 @@
-Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwODY0NzU0OC1hOGExLTQ2ZWMtYTMzMC0zMDQ3MzhkMjM5OTAiLCJpZCI6NDI5NjI4LCJpc3MiOiJodHRwczovL2lvbi5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3Nzg0MjYxNTR9.K4dqI6rl15tmHWb9JB49MzZ-BKydnlGNpUnWZ-Wt_QM";
+// ======================
+// 🟣 MUSEUM PRO 3D AI
+// FINAL STABLE CESIUM VERSION
+// ======================
+
 console.log("🟣 MUSEUM PRO 3D AI START");
 
+// ======================
+// 🔑 CESIUM TOKEN
+// ======================
+
+// REPLACE WITH YOUR TOKEN
+Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwODY0NzU0OC1hOGExLTQ2ZWMtYTMzMC0zMDQ3MzhkMjM5OTAiLCJpZCI6NDI5NjI4LCJpc3MiOiJodHRwczovL2lvbi5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3Nzg0MjYxNTR9.K4dqI6rl15tmHWb9JB49MzZ-BKydnlGNpUnWZ-Wt_QM";
+
+// ======================
+// GLOBALS
+// ======================
+
 let viewer = null;
-let isReady = false;
-let queue = [];
 let allData = [];
 
 // ======================
-// START
+// START APP
 // ======================
 
-window.addEventListener("load", () => {
-  initCesium();
-  loadData();
+window.addEventListener("load", async () => {
+
+  console.log("WINDOW READY");
+
+  await initCesium();
+
+  await loadData();
+
 });
 
 // ======================
-// CESIUM INIT
+// INIT CESIUM
 // ======================
 
 async function initCesium() {
@@ -24,22 +42,29 @@ async function initCesium() {
   try {
 
     viewer = new Cesium.Viewer("cesiumContainer", {
-      terrainProvider: await Cesium.Terrain.fromWorldTerrain(),
+
+      terrain: Cesium.Terrain.fromWorldTerrain(),
+
       animation: false,
-      timeline: false
+      timeline: false,
+
+      baseLayerPicker: true,
+      geocoder: true,
+      sceneModePicker: true,
+      navigationHelpButton: false,
+
+      shouldAnimate: true
+
     });
 
-    isReady = true;
+    // Better atmosphere
+    viewer.scene.globe.enableLighting = true;
 
     console.log("🗺 CESIUM READY");
 
-    // flush queue
-    queue.forEach(fn => fn());
-    queue = [];
+  } catch (err) {
 
-  } catch (e) {
-
-    console.error("CESIUM INIT ERROR:", e);
+    console.error("❌ CESIUM INIT ERROR:", err);
 
   }
 
@@ -49,49 +74,51 @@ async function initCesium() {
 // LOAD DATA
 // ======================
 
-function loadData() {
+async function loadData() {
 
-  fetch("./data/locations.json?v=" + Date.now())
-    .then(r => r.json())
-    .then(data => {
+  try {
 
-      allData = data;
+    const response = await fetch(
+      "./data/locations.json?v=" + Date.now()
+    );
 
-      console.log("📦 DATA LOADED:", allData.length);
+    const data = await response.json();
 
-      render();
+    allData = data;
 
-    })
-    .catch(err => console.error("DATA ERROR:", err));
+    console.log("📦 DATA LOADED:", allData.length);
+
+    renderEntities();
+
+  } catch (err) {
+
+    console.error("❌ DATA LOAD ERROR:", err);
+
+  }
 
 }
 
 // ======================
-// SAFE EXEC (WAIT FOR CESIUM)
+// RENDER ENTITIES
 // ======================
 
-function safe(fn) {
+function renderEntities() {
 
-  if (!isReady) {
-    queue.push(fn);
+  if (!viewer) {
+    console.error("Viewer not ready");
     return;
   }
 
-  fn();
-
-}
-
-// ======================
-// RENDER
-// ======================
-
-function render() {
-
   allData.forEach(o => {
 
-    safe(() => addEntity(o));
+    addEntity(o);
 
   });
+
+  // AUTO ZOOM TO ALL OBJECTS
+  viewer.zoomTo(viewer.entities);
+
+  console.log("📍 ENTITIES RENDERED");
 
 }
 
@@ -101,45 +128,101 @@ function render() {
 
 function addEntity(o) {
 
-  if (!viewer) return;
-
   if (!o.lat || !o.lng) {
-    console.warn("BAD DATA:", o);
+
+    console.warn("BAD OBJECT:", o);
     return;
+
   }
 
-  viewer.entities.add({
+  const entity = viewer.entities.add({
 
     name: o.name,
 
-    position: Cesium.Cartesian3.fromDegrees(o.lng, o.lat),
+    position: Cesium.Cartesian3.fromDegrees(
+      Number(o.lng),
+      Number(o.lat),
+      0
+    ),
 
     point: {
       pixelSize: 12,
       color: getColor(o.type),
       outlineColor: Cesium.Color.WHITE,
       outlineWidth: 2
+    },
+
+    label: {
+      text: o.name,
+      font: "14px sans-serif",
+      style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+      outlineWidth: 2,
+      verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+      pixelOffset: new Cesium.Cartesian2(0, -18),
+      scale: 0.6
     }
 
   });
 
-  console.log("ADDED:", o.name);
+  // AI DESCRIPTION
+  entity.description = buildAI(o);
+
+  console.log("✅ ADDED:", o.name);
 
 }
 
 // ======================
-// COLORS
+// COLOR SYSTEM
 // ======================
 
 function getColor(type) {
 
-  const map = {
+  const colors = {
+
     church: Cesium.Color.CRIMSON,
     skyscraper: Cesium.Color.DODGERBLUE,
     historic: Cesium.Color.ORANGE,
-    district: Cesium.Color.GREEN
+    district: Cesium.Color.LIMEGREEN
+
   };
 
-  return map[type] || Cesium.Color.GRAY;
+  return colors[type] || Cesium.Color.GRAY;
+
+}
+
+// ======================
+// 🧠 AI DESCRIPTION
+// ======================
+
+function buildAI(o) {
+
+  return `
+    <div style="font-family:Arial; max-width:400px;">
+
+      <h2>${o.name}</h2>
+
+      <p>
+        <b>Type:</b> ${o.type || "unknown"}
+      </p>
+
+      <p>
+        <b>Year:</b> ${o.year || "unknown"}
+      </p>
+
+      <hr/>
+
+      <p>
+        This location represents part of Chicago’s
+        historical and architectural evolution.
+      </p>
+
+      <p>
+        AI Museum Insight:
+        The site contributes to the spatial identity
+        and cultural memory of the city.
+      </p>
+
+    </div>
+  `;
 
 }
