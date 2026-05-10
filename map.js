@@ -1,3 +1,4 @@
+Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwODY0NzU0OC1hOGExLTQ2ZWMtYTMzMC0zMDQ3MzhkMjM5OTAiLCJpZCI6NDI5NjI4LCJpc3MiOiJodHRwczovL2lvbi5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3Nzg0MjYxNTR9.K4dqI6rl15tmHWb9JB49MzZ-BKydnlGNpUnWZ-Wt_QM";
 console.log("🟣 MUSEUM PRO 3D AI START");
 
 let viewer = null;
