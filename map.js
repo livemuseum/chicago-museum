@@ -1,4 +1,4 @@
-console.log("MUSEUM PRO ENGINE START");
+console.log("MUSEUM PRO AI ENGINE START");
 
 let map;
 let markers;
@@ -9,10 +9,8 @@ let allData = [];
 // ======================
 
 window.addEventListener("load", () => {
-
   initMap();
   loadData();
-
 });
 
 // ======================
@@ -35,12 +33,12 @@ function initMap() {
 }
 
 // ======================
-// LOAD DATA
+// LOAD DATA (CACHE FIX)
 // ======================
 
 function loadData() {
 
-  fetch("./data/locations.json?v=" + Date.now()) // cache bust FIX
+  fetch("./data/locations.json?v=" + Date.now())
     .then(r => r.json())
     .then(data => {
 
@@ -114,23 +112,23 @@ function renderMarkers() {
 
   });
 
-  console.log("MARKERS RENDERED:", allData.length);
+  console.log("MARKERS READY:", allData.length);
 
 }
 
 // ======================
-// WIKIPEDIA ENGINE (FIXED)
+// WIKIPEDIA ENGINE (SMART + AI SUMMARY)
 // ======================
 
 async function loadWikipedia(title) {
 
   const panel = document.getElementById("details");
 
-  panel.innerHTML = "<p>Loading Wikipedia...</p>";
+  panel.innerHTML = "<p>Loading museum data...</p>";
 
   try {
 
-    // 1. direct try
+    // 1. direct attempt
     let url =
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
 
@@ -144,7 +142,7 @@ async function loadWikipedia(title) {
 
     }
 
-    // 2. search fallback
+    // 2. fallback search
     const searchUrl =
       `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(title)}&limit=1&format=json&origin=*`;
 
@@ -182,6 +180,23 @@ async function loadWikipedia(title) {
 }
 
 // ======================
+// 🧠 AI SUMMARY ENGINE (MUSEUM STYLE)
+// ======================
+
+function makeAISummary(text) {
+
+  if (!text) return "No description available.";
+
+  const sentences = text.split(". ").filter(Boolean);
+
+  if (sentences.length <= 2) return text;
+
+  // museum-style: short + clean + curated
+  return sentences.slice(0, 2).join(". ") + ".";
+
+}
+
+// ======================
 // RENDER WIKI PANEL
 // ======================
 
@@ -189,19 +204,23 @@ function renderWiki(data) {
 
   const panel = document.getElementById("details");
 
+  const summary = makeAISummary(data.extract);
+
   panel.innerHTML = `
     <h3>${data.title || ""}</h3>
 
     ${data.thumbnail ?
-      `<img src="${data.thumbnail.source}" style="width:100%; border-radius:8px; margin-bottom:8px;">`
+      `<img src="${data.thumbnail.source}"
+        style="width:100%; border-radius:8px; margin-bottom:8px;">`
       : ""
     }
 
-    <p>${data.extract || "No description available."}</p>
+    <p style="font-size:14px; line-height:1.4;">
+      ${summary}
+    </p>
 
     <a href="${data.content_urls?.desktop?.page}" target="_blank">
-      Open Wikipedia →
+      Open full Wikipedia →
     </a>
   `;
-
 }
