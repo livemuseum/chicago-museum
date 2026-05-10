@@ -34,12 +34,7 @@ function initMap() {
 
   console.log("MAP READY");
 
-  // test marker
-  L.marker([41.8781, -87.6298])
-    .addTo(map)
-    .bindPopup("MUSEUM ENGINE OK");
-
-}
+  }
 
 // ======================
 // LOAD DATA
