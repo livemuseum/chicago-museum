@@ -1,59 +1,20 @@
 [
-  { "name": "Willis Tower", "lat": 41.8789, "lng": -87.6359, "year": 1973, "type": "skyscraper" },
-  { "name": "Navy Pier", "lat": 41.8917, "lng": -87.6078, "year": 1916, "type": "landmark" },
-  { "name": "Chicago Water Tower", "lat": 41.8976, "lng": -87.6237, "year": 1869, "type": "historic building" },
-  { "name": "The Rookery Building", "lat": 41.8790, "lng": -87.6286, "year": 1888, "type": "historic office" },
-  { "name": "Old St. Patrick's Church", "lat": 41.8837, "lng": -87.6475, "year": 1856, "type": "church" },
-  { "name": "Holy Name Cathedral", "lat": 41.8945, "lng": -87.6281, "year": 1875, "type": "church" },
-  { "name": "St. Michael's Church Old Town", "lat": 41.9113, "lng": -87.6386, "year": 1869, "type": "church" },
-  { "name": "Prairie Avenue Historic District", "lat": 41.8565, "lng": -87.6216, "year": 1870, "type": "district" },
-  { "name": "Pullman Historic District", "lat": 41.6926, "lng": -87.6080, "year": 1880, "type": "district" },
-  { "name": "Chicago Cultural Center", "lat": 41.8839, "lng": -87.6242, "year": 1897, "type": "cultural building" },
-
-  { "name": "St. James Chapel", "lat": 41.8902, "lng": -87.6345, "year": 1880, "type": "church" },
-  { "name": "St. Luke's Church", "lat": 41.9021, "lng": -87.6341, "year": 1890, "type": "church" },
-  { "name": "St. Paul Lutheran Church", "lat": 41.8920, "lng": -87.6172, "year": 1872, "type": "church" },
-  { "name": "St. Peter's Church", "lat": 41.8855, "lng": -87.6202, "year": 1885, "type": "church" },
-  { "name": "Second Presbyterian Church", "lat": 41.8756, "lng": -87.6249, "year": 1874, "type": "church" },
-
-  { "name": "Robie House (Frank Lloyd Wright)", "lat": 41.7886, "lng": -87.5968, "year": 1909, "type": "historic house" },
-  { "name": "Glessner House", "lat": 41.8606, "lng": -87.6226, "year": 1887, "type": "historic house" },
-  { "name": "Clarke House Museum", "lat": 41.8622, "lng": -87.6186, "year": 1836, "type": "historic house" },
-
-  { "name": "Hyde Park Historic District", "lat": 41.7943, "lng": -87.5907, "year": 1870, "type": "district" },
-  { "name": "Englewood Historic Area", "lat": 41.7750, "lng": -87.6450, "year": 1880, "type": "district" },
-  { "name": "Bronzeville Historic District", "lat": 41.8290, "lng": -87.6170, "year": 1920, "type": "district" },
-  { "name": "Pilsen Historic Neighborhood", "lat": 41.8560, "lng": -87.6650, "year": 1880, "type": "district" },
-  { "name": "Wicker Park Historic Area", "lat": 41.9105, "lng": -87.6790, "year": 1870, "type": "district" },
-
-  { "name": "St. Boniface Church", "lat": 41.9101, "lng": -87.6523, "year": 1902, "type": "church" },
-  { "name": "St. Mary of the Angels", "lat": 41.9286, "lng": -87.7013, "year": 1899, "type": "church" },
-  { "name": "St. Alphonsus Church", "lat": 41.9100, "lng": -87.6470, "year": 1896, "type": "church" },
-  { "name": "St. Vincent de Paul Church", "lat": 41.8848, "lng": -87.6565, "year": 1875, "type": "church" },
-  { "name": "St. John Cantius Church", "lat": 41.8907, "lng": -87.6476, "year": 1898, "type": "church" },
-
-  { "name": "Union Stock Yard Gate", "lat": 41.8183, "lng": -87.6545, "year": 1879, "type": "historic site" },
-  { "name": "Marshall Field Building", "lat": 41.8831, "lng": -87.6285, "year": 1902, "type": "historic store" },
-  { "name": "Auditorium Building", "lat": 41.8789, "lng": -87.6240, "year": 1889, "type": "historic theater" },
-
-  { "name": "Lincoln Park Historic Area", "lat": 41.9214, "lng": -87.6513, "year": 1865, "type": "district" },
-  { "name": "Grant Park Historic Zone", "lat": 41.8755, "lng": -87.6194, "year": 1901, "type": "park" },
-  { "name": "Jackson Park Historic Area", "lat": 41.7840, "lng": -87.5800, "year": 1893, "type": "park" },
-
-  { "name": "Chicago Avenue Pumping Station", "lat": 41.8975, "lng": -87.6230, "year": 1869, "type": "utility building" },
-  { "name": "Wrigley Building", "lat": 41.8885, "lng": -87.6245, "year": 1924, "type": "skyscraper" },
-  { "name": "Tribune Tower", "lat": 41.8902, "lng": -87.6234, "year": 1925, "type": "skyscraper" },
-
-  { "name": "St. Mary Church (Near South Side)", "lat": 41.8570, "lng": -87.6270, "year": 1880, "type": "church" },
-  { "name": "St. Joseph Church", "lat": 41.9123, "lng": -87.6512, "year": 1873, "type": "church" },
-  { "name": "St. Michael Old Town Annex", "lat": 41.9130, "lng": -87.6380, "year": 1885, "type": "church" },
-
-  { "name": "South Loop Historic District", "lat": 41.8700, "lng": -87.6270, "year": 1870, "type": "district" },
-  { "name": "Old Town Triangle District", "lat": 41.9090, "lng": -87.6360, "year": 1870, "type": "district" },
-
-  { "name": "Chicago Board of Trade Building", "lat": 41.8818, "lng": -87.6327, "year": 1930, "type": "historic skyscraper" },
-  { "name": "Monadnock Building", "lat": 41.8816, "lng": -87.6316, "year": 1891, "type": "historic skyscraper" },
-
-  { "name": "St. Stanislaus Kostka Church", "lat": 41.9010, "lng": -87.6570, "year": 1877, "type": "church" },
-  { "name": "St. Hedwig Church", "lat": 41.8905, "lng": -87.6610, "year": 1901, "type": "church" }
+  {
+    "name": "Willis Tower",
+    "lat": 41.8789,
+    "lng": -87.6359,
+    "year": 1973
+  },
+  {
+    "name": "Navy Pier",
+    "lat": 41.8917,
+    "lng": -87.6078,
+    "year": 1916
+  },
+  {
+    "name": "Holy Name Cathedral",
+    "lat": 41.9017,
+    "lng": -87.6298,
+    "year": 1875
+  }
 ]
