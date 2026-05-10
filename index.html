@@ -4,151 +4,51 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>Museum Pro Engine</title>
+  <title>Museum Pro 3D AI</title>
 
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-  <!-- Marker Cluster -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
+  <!-- CESIUM -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 
   <style>
-    html, body {
+    html, body, #cesiumContainer {
+      width: 100%;
+      height: 100%;
       margin: 0;
       padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
+      overflow: hidden;
     }
 
-    /* MAP */
-    #map {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
-
-    /* UI PANEL */
     #ui {
       position: absolute;
       top: 10px;
       left: 10px;
-      z-index: 9999;
-
       width: 300px;
       background: white;
       padding: 12px;
       border-radius: 10px;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.25);
+      z-index: 9999;
+      font-family: Arial;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.3);
     }
 
-    #ui h3 {
-      margin: 0 0 10px 0;
-    }
-
-    /* TIMELINE */
-    #yearRange {
-      width: 100%;
-    }
-
-    #yearLabel {
-      font-weight: bold;
-      margin: 5px 0 10px 0;
-    }
-
-    /* DETAILS PANEL */
     #details {
       margin-top: 10px;
-      border-top: 1px solid #ddd;
-      padding-top: 10px;
       font-size: 14px;
-    }
-
-    #details img {
-      width: 100%;
-      border-radius: 8px;
-      margin-bottom: 8px;
-    }
-
-    /* SIDEBAR (optional list) */
-    #sidebar {
-      margin-top: 10px;
-      max-height: 200px;
-      overflow-y: auto;
-      border-top: 1px solid #eee;
-      padding-top: 8px;
-    }
-
-    .object-card {
-      padding: 6px;
-      border-bottom: 1px solid #eee;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    .object-card:hover {
-      background: #f5f5f5;
-    }
-
-    /* TYPE FILTER BUTTONS (optional but supported) */
-    .filters {
-      margin: 8px 0;
-    }
-
-    .filters button {
-      margin: 2px;
-      font-size: 12px;
-      padding: 4px 6px;
-      cursor: pointer;
     }
   </style>
 </head>
 
 <body>
 
-<!-- MAP -->
-<div id="map"></div>
+<div id="cesiumContainer"></div>
 
-<!-- UI -->
 <div id="ui">
-
-  <h3>Museum Pro Engine</h3>
-
-  <!-- TIMELINE -->
-  <label>Timeline</label>
-  <input id="yearRange" type="range" min="1800" max="2025" value="2025"/>
-  <div id="yearLabel">2025</div>
-
-  <!-- FILTERS (optional but supported by JS) -->
-  <div class="filters">
-    <button data-type="all">All</button>
-    <button data-type="church">Church</button>
-    <button data-type="historic">Historic</button>
-    <button data-type="skyscraper">Skyscraper</button>
-    <button data-type="district">District</button>
-  </div>
-
-  <!-- SIDEBAR -->
-  <div id="sidebar"></div>
-
-  <!-- DETAILS -->
-  <div id="details">
-    <b>Click a marker</b>
-    <p>Wikipedia info will appear here</p>
-  </div>
-
+  <h3>Museum Pro 3D AI</h3>
+  <div id="details">Click a building</div>
 </div>
 
-<!-- LEAFLET -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- CLUSTER -->
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-
-<!-- APP -->
-<script src="map.js?v=999"></script>
+<script src="map.js"></script>
 
 </body>
 </html>
