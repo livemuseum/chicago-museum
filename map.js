@@ -1,3 +1,5 @@
+alert("NEW MAP JS LOADED");
+
 console.log("🟣 MUSEUM PRO FINAL");
 
 Cesium.Ion.defaultAccessToken = "PASTE_TOKEN_HERE";
