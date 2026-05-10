@@ -1,7 +1,3 @@
-
-
-alert("MAP JS VERSION 1 LOADED");
-
 console.log("MAP JS VERSION = 999");
 
 console.log("MUSEUM PRO ENGINE START");
@@ -50,7 +46,7 @@ function loadData() {
 
   console.log("LOADING DATA...");
 
-  fetch("./data/locations.json")
+  fetch("./data/locations.json?v=999")
     .then(res => {
 
       console.log("FETCH STATUS:", res.status);
