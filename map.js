@@ -1,48 +1,58 @@
-console.log("START HARD DEBUG");
+console.log("ABSOLUTE TEST START");
 
-Cesium.Ion.defaultAccessToken = "PASTE_TOKEN";
+Cesium.Ion.defaultAccessToken = "PASTE_TOKEN_HERE";
 
-window.onload = function () {
+window.onload = async function () {
 
+  // CREATE VIEWER
   const viewer = new Cesium.Viewer("cesiumContainer", {
 
     animation: false,
-    timeline: false
+    timeline: false,
+
+    terrain: undefined
 
   });
 
   console.log("VIEWER OK");
 
-  // HUGE RED BILLBOARD
+  // DISABLE DEPTH TEST
+  viewer.scene.globe.depthTestAgainstTerrain = false;
+
+  // HUGE ENTITY
   viewer.entities.add({
+
+    name: "GIANT TEST",
 
     position: Cesium.Cartesian3.fromDegrees(
       -87.6298,
       41.8781,
-      0
+      1000
     ),
 
-    billboard: {
+    ellipsoid: {
 
-      image:
-        "https://upload.wikimedia.org/wikipedia/commons/3/3f/Red_circle.svg",
+      radii: new Cesium.Cartesian3(
+        3000,
+        3000,
+        3000
+      ),
 
-      width: 80,
-      height: 80
+      material: Cesium.Color.RED.withAlpha(0.9)
 
     }
 
   });
 
-  console.log("BILLBOARD ADDED");
+  console.log("ENTITY ADDED");
 
-  // FORCE CAMERA
+  // FORCE CAMERA VERY CLOSE
   viewer.camera.setView({
 
     destination: Cesium.Cartesian3.fromDegrees(
       -87.6298,
       41.8781,
-      5000
+      15000
     )
 
   });
