@@ -1,4 +1,4 @@
-console.log("MUSEUM PRO SMART ENGINE START");
+console.log("MUSEUM PRO ENGINE START");
 
 let map;
 let markers;
@@ -16,7 +16,7 @@ window.addEventListener("load", () => {
 });
 
 // ======================
-// MAP
+// MAP INIT
 // ======================
 
 function initMap() {
@@ -40,7 +40,7 @@ function initMap() {
 
 function loadData() {
 
-  fetch("./data/locations.json")
+  fetch("./data/locations.json?v=" + Date.now()) // cache bust FIX
     .then(r => r.json())
     .then(data => {
 
@@ -51,12 +51,12 @@ function loadData() {
       renderMarkers();
 
     })
-    .catch(err => console.error(err));
+    .catch(err => console.error("LOAD ERROR:", err));
 
 }
 
 // ======================
-// ICON ENGINE
+// ICON SYSTEM
 // ======================
 
 function getIcon(type) {
@@ -84,7 +84,7 @@ function getIcon(type) {
 }
 
 // ======================
-// RENDER
+// RENDER MARKERS
 // ======================
 
 function renderMarkers() {
@@ -114,61 +114,94 @@ function renderMarkers() {
 
   });
 
-  console.log("SMART CLUSTER READY:", allData.length);
+  console.log("MARKERS RENDERED:", allData.length);
 
 }
 
 // ======================
-// WIKIPEDIA ENGINE
+// WIKIPEDIA ENGINE (FIXED)
 // ======================
 
 async function loadWikipedia(title) {
 
   const panel = document.getElementById("details");
 
-  panel.innerHTML = "<p>Loading...</p>";
+  panel.innerHTML = "<p>Loading Wikipedia...</p>";
 
   try {
 
+    // 1. direct try
     let url =
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
 
     let res = await fetch(url);
 
-    if (!res.ok) {
+    if (res.ok) {
 
-      const search =
-        `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(title)}&limit=1&format=json&origin=*`;
+      const data = await res.json();
+      renderWiki(data);
+      return;
 
-      const sres = await fetch(search);
-      const sdata = await sres.json();
-
-      const best = sdata?.[1]?.[0];
-
-      if (!best) {
-        panel.innerHTML = "<p>No Wikipedia data</p>";
-        return;
-      }
-
-      url =
-        `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(best)}`;
-
-      res = await fetch(url);
     }
 
-    const data = await res.json();
+    // 2. search fallback
+    const searchUrl =
+      `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(title)}&limit=1&format=json&origin=*`;
 
-    panel.innerHTML = `
-      <h3>${data.title}</h3>
-      ${data.thumbnail ? `<img src="${data.thumbnail.source}" style="width:100%; border-radius:8px;">` : ""}
-      <p>${data.extract || ""}</p>
-      <a href="${data.content_urls?.desktop?.page}" target="_blank">Wikipedia →</a>
-    `;
+    const sres = await fetch(searchUrl);
+    const sdata = await sres.json();
 
-  } catch (e) {
+    const best = sdata?.[1]?.[0];
 
-    panel.innerHTML = "<p>Error loading Wikipedia</p>";
+    if (!best) {
+      panel.innerHTML = "<p>No Wikipedia match found</p>";
+      return;
+    }
+
+    // 3. final fetch
+    const finalUrl =
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(best)}`;
+
+    const finalRes = await fetch(finalUrl);
+
+    if (!finalRes.ok) {
+      panel.innerHTML = "<p>No Wikipedia data</p>";
+      return;
+    }
+
+    const data = await finalRes.json();
+    renderWiki(data);
+
+  } catch (err) {
+
+    console.error(err);
+    panel.innerHTML = "<p>Wikipedia error</p>";
 
   }
+
+}
+
+// ======================
+// RENDER WIKI PANEL
+// ======================
+
+function renderWiki(data) {
+
+  const panel = document.getElementById("details");
+
+  panel.innerHTML = `
+    <h3>${data.title || ""}</h3>
+
+    ${data.thumbnail ?
+      `<img src="${data.thumbnail.source}" style="width:100%; border-radius:8px; margin-bottom:8px;">`
+      : ""
+    }
+
+    <p>${data.extract || "No description available."}</p>
+
+    <a href="${data.content_urls?.desktop?.page}" target="_blank">
+      Open Wikipedia →
+    </a>
+  `;
 
 }
