@@ -1,3 +1,7 @@
+
+
+alert("MAP JS VERSION 1 LOADED");
+
 console.log("MAP JS VERSION = 999");
 
 console.log("MUSEUM PRO ENGINE START");
