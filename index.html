@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Cesium HARD TEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>Museum Pro 3D</title>
 
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
 
@@ -12,19 +14,43 @@
   />
 
   <style>
+
     html, body {
       margin: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: black;
+      font-family: Arial;
     }
 
     #cesiumContainer {
       width: 100vw;
       height: 100vh;
-      display: block;
     }
+
+    #ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+
+      width: 320px;
+
+      background: rgba(255,255,255,0.95);
+
+      padding: 15px;
+
+      border-radius: 10px;
+
+      z-index: 9999;
+
+      box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+    }
+
+    #details {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
   </style>
 </head>
 
@@ -32,61 +58,17 @@
 
 <div id="cesiumContainer"></div>
 
-<script>
+<div id="ui">
 
-console.log("START TEST");
+  <h2>Museum Pro 3D AI</h2>
 
-// PASTE YOUR TOKEN HERE
-Cesium.Ion.defaultAccessToken = "PASTE_TOKEN_HERE";
+  <div id="details">
+    Click an object
+  </div>
 
-const viewer = new Cesium.Viewer("cesiumContainer", {
+</div>
 
-  animation: false,
-  timeline: false
-
-});
-
-console.log("VIEWER CREATED");
-
-// BIG RED BOX
-viewer.entities.add({
-
-  name: "TEST",
-
-  position: Cesium.Cartesian3.fromDegrees(
-    -87.6298,
-    41.8781,
-    0
-  ),
-
-  box: {
-    dimensions: new Cesium.Cartesian3(
-      500,
-      500,
-      500
-    ),
-
-    material: Cesium.Color.RED
-  }
-
-});
-
-console.log("ENTITY ADDED");
-
-// FORCE CAMERA
-viewer.camera.flyTo({
-
-  destination: Cesium.Cartesian3.fromDegrees(
-    -87.6298,
-    41.8781,
-    5000
-  )
-
-});
-
-console.log("CAMERA DONE");
-
-</script>
+<script src="map.js?v=999"></script>
 
 </body>
 </html>
