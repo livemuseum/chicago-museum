@@ -4,9 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>Museum Pro</title>
+  <title>Museum Pro Smart GIS</title>
 
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <!-- Marker Cluster -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
 
@@ -19,11 +22,8 @@
     }
 
     #map {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      height: 100vh;
+      width: 100vw;
     }
 
     #ui {
@@ -31,27 +31,11 @@
       top: 10px;
       left: 10px;
       z-index: 9999;
-
       width: 280px;
       background: white;
       padding: 12px;
       border-radius: 10px;
       box-shadow: 0 2px 15px rgba(0,0,0,0.25);
-    }
-
-    #searchBox {
-      width: 100%;
-      padding: 6px;
-      margin-bottom: 10px;
-    }
-
-    #yearRange {
-      width: 100%;
-    }
-
-    #yearLabel {
-      font-weight: bold;
-      margin: 5px 0;
     }
 
     #details {
@@ -60,22 +44,23 @@
       padding-top: 10px;
     }
 
-    #sidebar {
+    .legend {
       margin-top: 10px;
-      max-height: 200px;
-      overflow-y: auto;
-      border-top: 1px solid #ddd;
+      font-size: 13px;
     }
 
-    .object-card {
-      padding: 6px;
-      border-bottom: 1px solid #eee;
-      cursor: pointer;
+    .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
     }
 
-    .object-card:hover {
-      background: #f5f5f5;
-    }
+    .church { background: #b30000; }
+    .skyscraper { background: #1f77b4; }
+    .district { background: #2ca02c; }
+    .historic { background: #ff7f0e; }
   </style>
 </head>
 
@@ -85,27 +70,30 @@
 
 <div id="ui">
 
-  <h2>Museum Pro</h2>
+  <h3>Museum Pro</h3>
 
-  <input id="searchBox" placeholder="Search..." />
-
-  <label>Timeline</label>
-  <input id="yearRange" type="range" min="1800" max="2025" value="2025"/>
-
-  <div id="yearLabel">2025</div>
-
-  <div id="sidebar"></div>
+  <div class="legend">
+    <div><span class="dot church"></span>Church</div>
+    <div><span class="dot skyscraper"></span>Skyscraper</div>
+    <div><span class="dot district"></span>District</div>
+    <div><span class="dot historic"></span>Historic</div>
+  </div>
 
   <div id="details">
-    <h3>Chicago Museum</h3>
-    <p>Click a marker</p>
+    <b>Click a marker</b>
+    <p>Wikipedia info will appear here</p>
   </div>
 
 </div>
 
+<!-- Leaflet -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Cluster -->
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-<script src="map.js?v=999"></script>
+
+<!-- App -->
+<script src="map.js?v=2"></script>
 
 </body>
 </html>
