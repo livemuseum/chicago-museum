@@ -1,94 +1,52 @@
-console.log("🟣 CESIUM MINIMAL START");
+console.log("START HARD DEBUG");
 
-// ======================
-// TOKEN
-// ======================
+Cesium.Ion.defaultAccessToken = "PASTE_TOKEN";
 
-Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwODY0NzU0OC1hOGExLTQ2ZWMtYTMzMC0zMDQ3MzhkMjM5OTAiLCJpZCI6NDI5NjI4LCJpc3MiOiJodHRwczovL2lvbi5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3Nzg0MjYxNTR9.K4dqI6rl15tmHWb9JB49MzZ-BKydnlGNpUnWZ-Wt_QM";
+window.onload = function () {
 
-// ======================
-// GLOBAL
-// ======================
+  const viewer = new Cesium.Viewer("cesiumContainer", {
 
-let viewer;
+    animation: false,
+    timeline: false
 
-// ======================
-// START
-// ======================
+  });
 
-window.addEventListener("load", start);
+  console.log("VIEWER OK");
 
-function start() {
+  // HUGE RED BILLBOARD
+  viewer.entities.add({
 
-  console.log("WINDOW READY");
+    position: Cesium.Cartesian3.fromDegrees(
+      -87.6298,
+      41.8781,
+      0
+    ),
 
-  try {
+    billboard: {
 
-    // ======================
-    // SIMPLE VIEWER
-    // ======================
+      image:
+        "https://upload.wikimedia.org/wikipedia/commons/3/3f/Red_circle.svg",
 
-    viewer = new Cesium.Viewer("cesiumContainer", {
+      width: 80,
+      height: 80
 
-      animation: false,
-      timeline: false,
+    }
 
-      terrain: undefined
+  });
 
-    });
+  console.log("BILLBOARD ADDED");
 
-    console.log("🗺 VIEWER READY");
+  // FORCE CAMERA
+  viewer.camera.setView({
 
-    // ======================
-    // TEST OBJECT 1
-    // ======================
+    destination: Cesium.Cartesian3.fromDegrees(
+      -87.6298,
+      41.8781,
+      5000
+    )
 
-    const e1 = viewer.entities.add({
+  });
 
-      name: "Chicago",
+  console.log("CAMERA SET");
 
-      position: Cesium.Cartesian3.fromDegrees(
-        -87.6298,
-        41.8781,
-        0
-      ),
-
-      point: {
-        pixelSize: 20,
-        color: Cesium.Color.RED
-      },
-
-      label: {
-        text: "CHICAGO",
-        font: "20px sans-serif",
-        fillColor: Cesium.Color.WHITE,
-        showBackground: true
-      }
-
-    });
-
-    console.log("✅ TEST ENTITY ADDED");
-
-    // ======================
-    // CAMERA FORCE
-    // ======================
-
-    viewer.camera.flyTo({
-
-      destination: Cesium.Cartesian3.fromDegrees(
-        -87.6298,
-        41.8781,
-        20000
-      )
-
-    });
-
-    console.log("📷 CAMERA MOVED");
-
-  } catch (e) {
-
-    console.error("❌ ERROR:", e);
-
-  }
-
-}
+};
