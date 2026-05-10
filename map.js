@@ -1,19 +1,19 @@
-console.log("MUSEUM ENGINE BOOT");
+console.log("🟣 MUSEUM PRO v5 AI SYSTEM START");
 
 let map;
 let markers;
 let allData = [];
 
-let activeYear = 2025;
-let activeType = "all";
+let state = {
+  year: 2025,
+  type: "all"
+};
 
 // ======================
-// INIT SAFE
+// INIT
 // ======================
 
 window.addEventListener("load", () => {
-
-  console.log("WINDOW READY");
 
   initMap();
   loadData();
@@ -22,31 +22,33 @@ window.addEventListener("load", () => {
 });
 
 // ======================
-// MAP INIT
+// MAP (Google Earth style base)
 // ======================
 
 function initMap() {
 
-  if (typeof L === "undefined") {
-    console.error("Leaflet not loaded");
-    return;
-  }
+  map = L.map("map", {
+    zoomControl: true,
+    attributionControl: true
+  }).setView([41.8781, -87.6298], 11);
 
-  map = L.map("map").setView([41.8781, -87.6298], 11);
+  L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    { attribution: "&copy; OpenStreetMap" }
+  ).addTo(map);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap"
-  }).addTo(map);
+  markers = L.markerClusterGroup({
+    chunkedLoading: true
+  });
 
-  markers = L.markerClusterGroup();
   map.addLayer(markers);
 
-  console.log("MAP READY");
+  console.log("🗺 MAP READY");
 
 }
 
 // ======================
-// LOAD DATA (CACHE SAFE)
+// DATA LAYER
 // ======================
 
 function loadData() {
@@ -55,37 +57,32 @@ function loadData() {
     .then(r => r.json())
     .then(data => {
 
-      allData = data || [];
+      allData = data;
 
-      console.log("DATA LOADED:", allData.length);
+      console.log("📦 DATA LOADED:", allData.length);
 
       render();
-
-    })
-    .catch(err => {
-
-      console.error("DATA LOAD ERROR:", err);
 
     });
 
 }
 
 // ======================
-// UI SAFE BINDING (NO CRASH IF ELEMENTS MISSING)
+// UI BINDING (timeline + filters)
 // ======================
 
 function bindUI() {
 
-  const yearSlider = document.getElementById("yearRange");
+  const year = document.getElementById("yearRange");
 
-  if (yearSlider) {
+  if (year) {
 
-    yearSlider.addEventListener("input", (e) => {
+    year.addEventListener("input", (e) => {
 
-      activeYear = +e.target.value;
+      state.year = +e.target.value;
 
       const label = document.getElementById("yearLabel");
-      if (label) label.innerText = activeYear;
+      if (label) label.innerText = state.year;
 
       render();
 
@@ -93,12 +90,11 @@ function bindUI() {
 
   }
 
-  // optional type filters
   document.querySelectorAll("[data-type]").forEach(btn => {
 
     btn.addEventListener("click", () => {
 
-      activeType = btn.getAttribute("data-type") || "all";
+      state.type = btn.dataset.type;
 
       render();
 
@@ -109,97 +105,106 @@ function bindUI() {
 }
 
 // ======================
-// ICONS
+// ICON SYSTEM (museum identity)
 // ======================
 
-function getIcon(type) {
+function icon(type) {
 
-  const colors = {
-    church: "#b30000",
-    skyscraper: "#1f77b4",
-    district: "#2ca02c",
-    historic: "#ff7f0e"
+  const palette = {
+    church: "#c0392b",
+    skyscraper: "#2980b9",
+    historic: "#f39c12",
+    district: "#27ae60"
   };
 
   return L.divIcon({
-    className: "icon",
+    className: "",
     html: `<div style="
       width:10px;height:10px;
-      background:${colors[type] || "#666"};
+      background:${palette[type] || "#555"};
       border-radius:50%;
       border:2px solid white;
-      box-shadow:0 0 3px rgba(0,0,0,0.4);
-    "></div>`,
-    iconSize: [10, 10]
+      box-shadow:0 0 5px rgba(0,0,0,0.3);
+    "></div>`
   });
 
 }
 
 // ======================
-// RENDER ENGINE (CORE)
+// RENDER ENGINE (core logic)
 // ======================
 
 function render() {
-
-  if (!markers) return;
 
   markers.clearLayers();
 
   let visible = 0;
 
   allData
-    .filter(item => {
+    .filter(o => {
 
-      const yearOk = !item.year || item.year <= activeYear;
-      const typeOk = activeType === "all" || item.type === activeType;
+      const yearOK = !o.year || o.year <= state.year;
+      const typeOK = state.type === "all" || o.type === state.type;
 
-      return yearOk && typeOk;
+      return yearOK && typeOK;
 
     })
-    .forEach(item => {
+    .forEach(o => {
 
-      if (!item.lat || !item.lng) return;
-
-      const marker = L.marker(
-        [item.lat, item.lng],
-        { icon: getIcon(item.type) }
-      );
-
-      // CLICK
-      marker.on("click", () => {
-        loadWikipedia(item.name);
-        showWhyItMatters(item);
+      const m = L.marker([o.lat, o.lng], {
+        icon: icon(o.type)
       });
 
-      // HOVER
-      marker.on("mouseover", () => {
-        marker.bindPopup(`<b>${item.name}</b>`).openPopup();
+      // CLICK → AI + WIKI
+      m.on("click", () => {
+        loadWikipedia(o.name);
+        showAIContext(o);
       });
 
-      markers.addLayer(marker);
+      // HOVER PREVIEW (Google Earth feel)
+      m.on("mouseover", () => {
+        m.bindPopup(`<b>${o.name}</b>`).openPopup();
+      });
+
+      markers.addLayer(m);
 
       visible++;
 
     });
 
-  console.log("RENDER DONE | visible:", visible);
-
-  // fallback debug marker (если ничего нет)
-  if (visible === 0) {
-    console.warn("NO VISIBLE DATA — CHECK FILTERS OR JSON");
-  }
+  console.log("📍 VISIBLE:", visible);
 
 }
 
 // ======================
-// WIKIPEDIA (ROBUST)
+// 🧠 AI WHY IT MATTERS (context engine)
+// ======================
+
+function showAIContext(o) {
+
+  const panel = document.getElementById("details");
+
+  panel.innerHTML = `
+    <h3>${o.name}</h3>
+
+    <p><b>AI Insight:</b></p>
+    <p>
+      This ${o.type || "structure"} reflects the historical evolution of Chicago’s
+      urban development and architectural identity.
+    </p>
+  `;
+
+}
+
+// ======================
+// 📚 WIKIPEDIA ENGINE (ROBUST)
 // ======================
 
 async function loadWikipedia(title) {
 
   const panel = document.getElementById("details");
 
-  if (panel) panel.innerHTML = "<p>Loading...</p>";
+  panel.innerHTML = "<p>Loading AI museum data...</p>";
 
   try {
 
@@ -219,7 +224,7 @@ async function loadWikipedia(title) {
       const best = sdata?.[1]?.[0];
 
       if (!best) {
-        if (panel) panel.innerHTML = "<p>No Wikipedia data</p>";
+        panel.innerHTML = "<p>No Wikipedia data</p>";
         return;
       }
 
@@ -231,77 +236,39 @@ async function loadWikipedia(title) {
 
     const data = await res.json();
 
-    renderWiki(data);
+    panel.innerHTML = `
+      <h3>${data.title}</h3>
+
+      ${data.thumbnail ?
+        `<img src="${data.thumbnail.source}" style="width:100%;border-radius:8px;">`
+        : ""
+      }
+
+      <p>${aiSummary(data.extract)}</p>
+
+      <a href="${data.content_urls?.desktop?.page}" target="_blank">
+        Open Wikipedia →
+      </a>
+    `;
 
   } catch (e) {
 
-    console.error(e);
-
-    const panel = document.getElementById("details");
-    if (panel) panel.innerHTML = "<p>Wikipedia error</p>";
+    panel.innerHTML = "<p>AI system error</p>";
 
   }
 
 }
 
 // ======================
-// AI SUMMARY
+// 🧠 AI SUMMARY ENGINE
 // ======================
 
-function makeAISummary(text) {
+function aiSummary(text) {
 
-  if (!text) return "No description available.";
+  if (!text) return "";
 
-  const sentences = text.split(". ");
+  const s = text.split(". ");
 
-  return sentences.slice(0, 2).join(". ") + ".";
-
-}
-
-// ======================
-// WIKI RENDER
-// ======================
-
-function renderWiki(data) {
-
-  const panel = document.getElementById("details");
-  if (!panel) return;
-
-  const summary = makeAISummary(data.extract);
-
-  panel.innerHTML = `
-    <h3>${data.title || ""}</h3>
-
-    ${data.thumbnail ?
-      `<img src="${data.thumbnail.source}" style="width:100%;border-radius:8px;">`
-      : ""
-    }
-
-    <p>${summary}</p>
-
-    <a href="${data.content_urls?.desktop?.page}" target="_blank">
-      Wikipedia →
-    </a>
-  `;
-
-}
-
-// ======================
-// WHY IT MATTERS (AI LAYER)
-// ======================
-
-function showWhyItMatters(item) {
-
-  const panel = document.getElementById("details");
-  if (!panel) return;
-
-  panel.innerHTML += `
-    <hr>
-    <h4>Why it matters</h4>
-    <p>
-      ${item.name} is part of Chicago’s ${item.type || "urban"} history
-      and reflects the city’s architectural and cultural evolution.
-    </p>
-  `;
+  return s.slice(0, 2).join(". ") + ".";
 
 }
